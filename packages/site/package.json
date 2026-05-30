@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "description": "Public gallery of interactive architecture concept animations",
+  "author": "Salah Awad <salah.awad@outlook.com>",
+  "license": "MIT",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

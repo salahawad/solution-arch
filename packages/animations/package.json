@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "description": "Motion Canvas animations for architecture concepts (vertical 9:16)",
+  "author": "Salah Awad <salah.awad@outlook.com>",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "start": "vite",
