@@ -1,5 +1,7 @@
 ---
 import "../styles/global.css";
+import { posterUrl } from "../lib/posterUrl";
+import concepts from "../concepts.json";
 
 interface Props {
   title: string;
@@ -8,7 +10,8 @@ interface Props {
 }
 const { title, description = "Senior-architect concepts, explained as short interactive visual animations.", ogImage } = Astro.props;
 const site = Astro.site ?? new URL("https://solution-arch.vercel.app");
-const ogUrl = ogImage ? new URL(ogImage, site).toString() : new URL("/animations/load-balancing.png", site).toString();
+// `new URL(rel, site)` preserves the ?v=<hash> query, so og:image stays versioned.
+const ogUrl = new URL(ogImage ?? posterUrl(concepts[0].poster), site).toString();
 const canonical = new URL(Astro.url.pathname, site).toString();
 ---
 

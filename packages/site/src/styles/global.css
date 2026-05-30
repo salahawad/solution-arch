@@ -79,7 +79,33 @@ img { display: block; max-width: 100%; }
 .cat-head h2 { font-size: 15px; text-transform: uppercase; letter-spacing: 3px; color: var(--muted); font-family: var(--mono); margin: 0; font-weight: 600; }
 .cat-head .rule { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px; }
+/* ---- library toolbar: search + category pills ---- */
+.lib-toolbar { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; margin: 4px 0 36px; }
+.search { position: relative; flex: 1 1 260px; min-width: 220px; max-width: 440px; }
+.search svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--muted-2); pointer-events: none; }
+.search input {
+  width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 999px;
+  color: var(--text); font-family: var(--sans); font-size: 14.5px; padding: 11px 16px 11px 42px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search input::placeholder { color: var(--muted-2); }
+.search input:focus { border-color: var(--teal-dim); box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12); }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 999px;
+  padding: 7px 14px; cursor: pointer; transition: color 0.18s, background 0.18s, border-color 0.18s;
+}
+.pill:hover { color: var(--text); border-color: var(--border-2); }
+.pill.is-active { color: var(--bg); background: var(--teal); border-color: var(--teal); font-weight: 700; }
+
+.cat-section { margin-bottom: 46px; }
+.cat-head.sub { margin: 0 0 18px; }
+.cat-head.sub h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 3px; color: var(--muted); font-family: var(--mono); margin: 0; font-weight: 600; }
+.cat-head.sub .count { color: var(--muted-2); font-size: 12px; font-family: var(--mono); }
+.no-results { color: var(--muted); text-align: center; padding: 56px 0; font-size: 15px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
 .grid > * { min-width: 0; }
 
 .card {
@@ -88,7 +114,7 @@ img { display: block; max-width: 100%; }
   display: block;
 }
 .card:hover { transform: translateY(-4px); border-color: var(--border-2); box-shadow: 0 18px 50px -20px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(45, 212, 191, 0.15); }
-.card .poster { aspect-ratio: 4 / 5; width: 100%; overflow: hidden; background: var(--bg-2); }
+.card .poster { aspect-ratio: 6 / 5; width: 100%; overflow: hidden; background: var(--bg-2); }
 .card .poster img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
 .card .meta { padding: 16px 18px 18px; }
 .card .meta .cat { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); }
@@ -107,14 +133,28 @@ img { display: block; max-width: 100%; }
 .back { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; margin-bottom: 28px; }
 .back:hover { color: var(--teal); }
 .concept-grid { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: start; }
-@media (min-width: 900px) { .concept-grid { grid-template-columns: 420px 1fr; gap: 56px; } }
+@media (min-width: 900px) {
+  /* portrait illustration as a hero: stage column sizes to its content, info fills the rest,
+     both vertically centered in (most of) the viewport so the page doesn't feel empty */
+  .concept-grid {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 64px;
+    align-items: center;
+    min-height: calc(100vh - 200px);
+  }
+}
 
-.stage-wrap { position: sticky; top: 96px; }
+.stage-wrap { display: flex; flex-direction: column; align-items: center; }
 .stage {
-  position: relative; width: 100%; max-width: 420px; aspect-ratio: 9 / 16; margin: 0 auto;
+  position: relative; width: 100%; max-width: 440px; aspect-ratio: 9 / 16; margin: 0 auto;
   border-radius: 22px; overflow: hidden; border: 1px solid var(--border-2);
   box-shadow: 0 0 60px -20px rgba(45, 212, 191, 0.25), 0 30px 80px -40px rgba(0, 0, 0, 0.9);
   background: var(--bg);
+}
+@media (min-width: 900px) {
+  /* size by viewport HEIGHT so it's as large as comfortably fits and never taller than the
+     viewport (minus header/padding) — so it doesn't overflow short laptops */
+  .stage { width: auto; max-width: none; height: clamp(460px, calc(100vh - 200px), 940px); }
 }
 .stage .poster, .stage motion-canvas-player { position: absolute; inset: 0; width: 100%; height: 100%; }
 .stage .poster { object-fit: cover; object-position: top center; transition: opacity 0.4s ease; }
@@ -132,10 +172,23 @@ img { display: block; max-width: 100%; }
 .stage.playing .overlay { opacity: 0; pointer-events: none; }
 .stage.playing .poster { opacity: 0; }
 
+/* visible keyboard focus for every interactive element */
+.card:focus-visible, .pill:focus-visible, .stage .overlay:focus-visible,
+.search input:focus-visible, .nav-link:focus-visible, .back:focus-visible, a.brand:focus-visible {
+  outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 6px;
+}
+
 .concept-info h1 { font-size: clamp(34px, 5vw, 56px); line-height: 1.05; letter-spacing: -0.03em; margin: 4px 0 18px; font-weight: 800; }
 .concept-info h1 .accent { color: var(--teal); }
 .concept-info .question { font-size: clamp(18px, 2.4vw, 23px); color: var(--text); font-weight: 500; margin: 0 0 26px; line-height: 1.4; }
-.concept-info .summary { color: var(--muted); font-size: 16px; line-height: 1.65; margin: 0 0 28px; max-width: 56ch; }
+.concept-info .summary { color: var(--muted); font-size: 16px; line-height: 1.65; margin: 0 0 24px; max-width: 56ch; }
+.concept-info .details { list-style: none; margin: 0 0 28px; padding: 0; display: grid; gap: 14px; max-width: 62ch; }
+.concept-info .details li { position: relative; padding-left: 22px; color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+.concept-info .details li::before {
+  content: ""; position: absolute; left: 2px; top: 9px; width: 7px; height: 7px; border-radius: 2px;
+  background: var(--teal); box-shadow: 0 0 8px var(--teal); transform: rotate(45deg);
+}
+.concept-info .details li strong, .concept-info .details li b { color: var(--text); font-weight: 600; }
 .hint { display: inline-flex; align-items: center; gap: 8px; color: var(--muted-2); font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.5px; }
 
 .more { margin-top: 56px; }
@@ -144,3 +197,13 @@ img { display: block; max-width: 100%; }
 /* ---- footer ---- */
 .site-footer { border-top: 1px solid var(--border); margin-top: 80px; padding: 36px 0; color: var(--muted-2); font-size: 13px; }
 .site-footer .inner { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
+
+/* honor reduced-motion across the CSS layer (the canvas autoplay is gated separately in JS) */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

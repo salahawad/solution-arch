@@ -31,7 +31,7 @@ export default makeScene2D(function* (view) {
 
   view.add(
     <>
-      <TitleBlock ref={title} handle="@solution-arch" titleA="" titleB="Sharding" subtitle="split data across nodes by shard key" position={[0, -830]} />
+      <TitleBlock ref={title} handle="github.com/salahawad/solution-arch" titleA="" titleB="Sharding" subtitle="split data across nodes by shard key" position={[0, -830]} />
 
       {/* STATE 1 */}
       <SectionPill ref={p1} variant="problem" label="ONE DATABASE" note="a single node holds everything" position={[-50, -640]} />

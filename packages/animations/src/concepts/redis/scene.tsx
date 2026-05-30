@@ -33,7 +33,7 @@ export default makeScene2D(function* (view) {
 
   view.add(
     <>
-      <TitleBlock ref={title} handle="@solution-arch" titleA="" titleB="Redis" subtitle="serve from memory, fall back to disk" position={[0, -830]} />
+      <TitleBlock ref={title} handle="github.com/salahawad/solution-arch" titleA="" titleB="Redis" subtitle="serve from memory, fall back to disk" position={[0, -830]} />
 
       {/* STATE 1 */}
       <SectionPill ref={p1} variant="problem" label="DISK ONLY" note="every read hits the database" position={[-90, -640]} />

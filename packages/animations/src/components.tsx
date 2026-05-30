@@ -34,9 +34,11 @@ export function TitleBlock(props: TitleBlockProps) {
       gap={16}
       position={props.position}
     >
-      <Txt text={props.handle} fill={C.mutedDim} fontFamily={F.mono} fontSize={26} letterSpacing={4} />
+      <Txt text={props.handle} fill={C.mutedDim} fontFamily={F.mono} fontSize={22} letterSpacing={2} />
       <Layout layout direction="row">
-        <Txt text={props.titleA} fill={C.text} fontFamily={F.sans} fontWeight={800} fontSize={96} />
+        {props.titleA ? (
+          <Txt text={props.titleA.trim()} fill={C.text} fontFamily={F.sans} fontWeight={800} fontSize={96} marginRight={26} />
+        ) : null}
         <Txt text={props.titleB} fill={C.teal} fontFamily={F.sans} fontWeight={800} fontSize={96} />
       </Layout>
       <Txt text={props.subtitle} fill={C.muted} fontFamily={F.sans} fontSize={32} fontWeight={500} />

@@ -8,6 +8,12 @@
     "category": "Scaling",
     "summary": "Spread requests across servers so no single box melts while the others sit idle.",
     "question": "Why does one server hit 100% while the others sit idle — and how does a balancer fix it?",
+    "details": [
+      "Match the algorithm to the workload: round-robin for uniform stateless nodes, least-connections for long-lived or uneven requests, and consistent hashing when you need cache affinity or sticky routing.",
+      "Choose the layer. An L4 (TCP) balancer is fast and protocol-agnostic; an L7 (HTTP) balancer routes by path, header or cookie, terminates TLS, retries idempotent calls and splits traffic for canaries — at a higher per-request cost.",
+      "Health is the whole point: active probes plus passive outlier detection eject a bad node in seconds. Add slow-start so a cold instance isn't hit at full weight, and connection draining so deploys don't drop in-flight requests.",
+      "Don't let the balancer become the single point of failure — run it redundantly behind a VIP/anycast or DNS failover, and keep N+1 capacity headroom so losing one node doesn't cascade into a retry storm."
+    ],
     "bundle": "/animations/load-balancing.js",
     "poster": "/animations/load-balancing.png"
   },
@@ -20,6 +26,12 @@
     "category": "Messaging",
     "summary": "Durable, partitioned event streaming that decouples producers from consumers.",
     "question": "How do partitions and consumer groups let Kafka scale a stream of events?",
+    "details": [
+      "Partitions are the unit of both parallelism and ordering: order is guaranteed only within a partition, so pick a key that spreads load while keeping per-entity events together.",
+      "A consumer group scales out only up to the partition count — extra consumers sit idle. Size partitions for peak parallelism up front, because raising the count later changes which partition a key hashes to, breaking per-key ordering for existing keys.",
+      "Durability is tunable per topic: acks=all with min.insync.replicas trades latency for not losing writes, and replication factor 3 survives a broker loss. Decide this per topic, not globally.",
+      "Kafka retains the log, so consumers own their offset — you get replay, backfill and dead-letter handling for free, but you must design for at-least-once delivery with idempotent consumers."
+    ],
     "bundle": "/animations/kafka.js",
     "poster": "/animations/kafka.png"
   },
@@ -32,6 +44,12 @@
     "category": "Caching",
     "summary": "An in-memory store: microsecond reads, the cache-aside pattern, and pub/sub.",
     "question": "Why is reading from memory so much faster — and when does the cache help?",
+    "details": [
+      "Cache-aside: on a read miss the app loads from the database and populates the cache; on a write it updates the database then invalidates (deletes) the entry. The hard part is invalidation — choose TTLs you can defend and treat a stale read as a deliberate product decision.",
+      "It's single-threaded per shard, so O(N) commands like KEYS or a huge SUNION block every client. Keep operations O(1)/O(log N) and SCAN instead of KEYS in production.",
+      "Memory is finite: set maxmemory with an eviction policy (allkeys-lru vs volatile-*), and watch for hot keys and big keys that skew a single shard.",
+      "Make the durability/HA story explicit — RDB/AOF persistence, replicas with Sentinel or Cluster for failover — and remember a cache stampede on a cold restart can melt the database behind it."
+    ],
     "bundle": "/animations/redis.js",
     "poster": "/animations/redis.png"
   },
@@ -44,6 +62,12 @@
     "category": "Data",
     "summary": "Split one huge dataset across nodes by shard key so writes scale horizontally.",
     "question": "When one database can no longer hold the data, how do you split it cleanly?",
+    "details": [
+      "The shard key decides everything: it must spread writes evenly and match your most common query, or you just trade one hot node for cross-shard scatter-gather.",
+      "Range keys keep range scans cheap but hotspot on sequential IDs; hash keys spread load but kill range queries. Consistent hashing limits how much data moves when you add a shard.",
+      "Cross-shard joins and transactions are the real cost: denormalize, co-locate related data under the same key, and avoid distributed transactions wherever you can.",
+      "Plan for rebalancing from day one — online split/move, a routing layer that can change the shard map without downtime, and backups that are consistent per shard."
+    ],
     "bundle": "/animations/sharding.js",
     "poster": "/animations/sharding.png"
   },
@@ -56,6 +80,12 @@
     "category": "Networking",
     "summary": "Serve users from the nearest edge instead of a single far-away origin.",
     "question": "Why does putting content at the edge cut latency from hundreds of ms to tens?",
+    "details": [
+      "Cacheability is a contract: set Cache-Control/s-maxage and ETags deliberately, separate truly static assets from personalized responses, and use stale-while-revalidate to hide origin latency.",
+      "Key the cache carefully — the Vary header, query strings and cookies fragment the cache and tank your hit rate, so normalize them at the edge.",
+      "Invalidation is the hard part: prefer immutable, content-hashed URLs over purges so a deploy is instant and atomic across every PoP.",
+      "The CDN is also your first line of defense and edge compute: TLS termination, WAF, rate limiting and edge functions move work off the origin — but keep an origin-shield/failover path for cache misses."
+    ],
     "bundle": "/animations/cdn.js",
     "poster": "/animations/cdn.png"
   },
@@ -68,7 +98,211 @@
     "category": "Resilience",
     "summary": "A token bucket smooths bursts and shields the backend from overload.",
     "question": "How does a token bucket absorb bursts while protecting the service behind it?",
+    "details": [
+      "Pick the algorithm for the shape you want: token bucket allows bursts up to a cap, leaky bucket smooths to a steady rate, and a sliding window gives accurate per-window counts. Token bucket is the usual default.",
+      "Decide the scope and key — per-user, per-IP, per-API-key or global — and where the counter lives. Distributed limits need a shared store like Redis and must tolerate its latency and failure.",
+      "Fail open or closed on purpose, and make rejection cheap: return 429 with Retry-After, shed load early, and never let the limiter itself become the bottleneck.",
+      "Combine it with backpressure and graceful degradation: bound queue depth, prioritize critical traffic, and pair client retries with jittered exponential backoff to avoid synchronized retry storms."
+    ],
     "bundle": "/animations/rate-limiting.js",
     "poster": "/animations/rate-limiting.png"
+  },
+  {
+    "slug": "circuit-breaker",
+    "title": [
+      "Circuit ",
+      "Breaker"
+    ],
+    "category": "Resilience",
+    "summary": "Trip open on a failing dependency so calls fail fast instead of dragging the whole system down.",
+    "question": "When a downstream service slows to a crawl, why does the caller die too — and how does a breaker stop it?",
+    "details": [
+      "A breaker wraps a remote call and counts failures: once they cross a threshold it trips OPEN and fails fast for a cool-down window, so callers stop piling up threads waiting on a dead dependency.",
+      "After the window it goes HALF-OPEN and lets a few probe requests through; success closes it, failure re-opens it — that's how it recovers without a human in the loop.",
+      "Tune the trip threshold, window and probe count to the dependency: too sensitive and you shed load needlessly, too lax and the cascade happens before it opens.",
+      "A breaker can't trip on a call that never returns, so pair it with timeouts, a fallback or cached response for the open state, and bulkheads so one slow dependency can't exhaust every thread."
+    ],
+    "bundle": "/animations/circuit-breaker.js",
+    "poster": "/animations/circuit-breaker.png"
+  },
+  {
+    "slug": "retry-backoff",
+    "title": [
+      "Retry ",
+      "Backoff"
+    ],
+    "category": "Resilience",
+    "summary": "Spread retries with exponential backoff and jitter so a blip doesn't become a self-inflicted stampede.",
+    "question": "Why do naive retries turn a brief outage into a retry storm that keeps the service down?",
+    "details": [
+      "Immediate, fixed-interval retries from every client synchronize into waves that hammer a recovering service — the retries, not the original fault, are what keep it down.",
+      "Exponential backoff (1s, 2s, 4s…) plus full jitter de-synchronizes clients and spreads load over time, giving the dependency room to actually recover.",
+      "Cap the attempts and the total deadline, and only retry idempotent operations — retrying a non-idempotent write is how you double-charge or duplicate work.",
+      "Combine it with a circuit breaker and a retry budget (e.g. retries ≤ 10% of requests) so retries can't amplify load without bound during a partial outage."
+    ],
+    "bundle": "/animations/retry-backoff.js",
+    "poster": "/animations/retry-backoff.png"
+  },
+  {
+    "slug": "idempotency",
+    "title": [
+      "",
+      "Idempotency"
+    ],
+    "category": "Resilience",
+    "summary": "Make an operation safe to repeat so a retried request is processed exactly once, not twice.",
+    "question": "A network blip makes the client retry a payment — how do you stop it charging the customer twice?",
+    "details": [
+      "The client sends a unique idempotency key; the server records key→result and, on any retry with the same key, returns the stored result instead of re-executing the work.",
+      "Persist the key and its outcome atomically with the side effect (same transaction), or you get a window where the work is done but the key isn't recorded — and the retry runs it again.",
+      "Give keys a sensible TTL and scope (per endpoint, per user), and decide what an in-flight duplicate should do: return 409, wait, or replay the stored response.",
+      "Idempotency keys make at-least-once delivery safe everywhere — payment APIs, webhook handlers, queue consumers — by turning unavoidable duplicates into harmless no-ops."
+    ],
+    "bundle": "/animations/idempotency.js",
+    "poster": "/animations/idempotency.png"
+  },
+  {
+    "slug": "replication",
+    "title": [
+      "Database ",
+      "Replication"
+    ],
+    "category": "Data",
+    "summary": "Copy writes from a primary to read replicas to scale reads and survive a node failure.",
+    "question": "When one database is both your read bottleneck and your single point of failure, what's the first move?",
+    "details": [
+      "The primary takes writes and streams its change log to replicas; reads fan out across replicas, so read capacity scales horizontally while writes stay on one node.",
+      "Replication is usually asynchronous, so replicas lag and reads can be stale — pin the user to the primary or a synchronous replica (read-your-writes) where they must see their own change immediately.",
+      "On primary loss, promote a replica. Automate failover carefully: fence the old primary and require a quorum to promote, or you risk split brain and lost writes.",
+      "Replication scales reads, not writes — once writes are the bottleneck you need sharding. The two compose: shard for write scale, replicate each shard for read scale and HA."
+    ],
+    "bundle": "/animations/replication.js",
+    "poster": "/animations/replication.png"
+  },
+  {
+    "slug": "saga",
+    "title": [
+      "",
+      "Saga"
+    ],
+    "category": "Data",
+    "summary": "Coordinate a transaction across services with local commits and compensating actions instead of 2PC.",
+    "question": "An order spans payment, inventory and shipping with no global transaction — how do you keep it consistent?",
+    "details": [
+      "A saga splits a distributed transaction into a sequence of local transactions; if a later step fails it runs compensating actions (refund, restock) to semantically undo the earlier ones.",
+      "Choose orchestration (a central coordinator drives the steps) when you need to observe and control a complex flow, or choreography (services react to events) for looser coupling but harder debugging.",
+      "Compensations are not rollbacks — intermediate states were visible, so design for it: reserve-then-confirm, idempotent compensations, and handle the already-shipped case.",
+      "Sagas give you atomicity of outcome, not isolation: concurrent sagas can observe each other's partial state, so add semantic locks or versioning where that matters."
+    ],
+    "bundle": "/animations/saga.js",
+    "poster": "/animations/saga.png"
+  },
+  {
+    "slug": "cap-theorem",
+    "title": [
+      "CAP ",
+      "Theorem"
+    ],
+    "category": "Data",
+    "summary": "Under a network partition you can keep consistency or availability — not both. Choose per use case.",
+    "question": "When the network splits your cluster in two, what do you give up — correctness or uptime?",
+    "details": [
+      "CAP only bites during a partition: while nodes can't talk, a request either waits/refuses (consistent, CP) or answers from a possibly-stale replica (available, AP). With no partition you get both.",
+      "It's a per-operation choice, not a per-database one: a bank balance wants CP (reject rather than be wrong), a cart or feed wants AP (serve stale, reconcile later).",
+      "The fuller picture is PACELC: even with no partition you trade latency vs consistency — quorum reads with R + W > N are correct but slower than reading the nearest replica.",
+      "AP systems push conflict resolution onto you: last-write-wins, vector clocks or CRDTs decide what happens when both sides accepted writes during the split."
+    ],
+    "bundle": "/animations/cap-theorem.js",
+    "poster": "/animations/cap-theorem.png"
+  },
+  {
+    "slug": "event-sourcing",
+    "title": [
+      "Event ",
+      "Sourcing"
+    ],
+    "category": "Data",
+    "summary": "Store the immutable stream of changes, not just current state — and build read models (CQRS) from it.",
+    "question": "When updating state in place loses history and reads fight writes, what do you store instead?",
+    "details": [
+      "Persist every change as an append-only, immutable event; current state is a fold over the events — giving you a complete audit log, time-travel, and the ability to rebuild any view.",
+      "CQRS separates the write model (the event log) from read models (projections) tuned per query, so reads no longer contend with writes and each side scales independently.",
+      "Projections are eventually consistent and replayable: a new view is built by replaying history and a bug is fixed by reprojecting — but consumers must tolerate the lag.",
+      "The costs are real: events are forever (schema versioning and upcasting matter), and you need snapshots so rebuilding a long-lived aggregate doesn't replay millions of events."
+    ],
+    "bundle": "/animations/event-sourcing.js",
+    "poster": "/animations/event-sourcing.png"
+  },
+  {
+    "slug": "consistent-hashing",
+    "title": [
+      "Consistent ",
+      "Hashing"
+    ],
+    "category": "Scaling",
+    "summary": "Map keys to nodes on a ring so adding or removing a node moves only a small slice of keys.",
+    "question": "Why does hash(key) % N remap almost everything when you add one node — and how does a ring fix it?",
+    "details": [
+      "With modulo hashing, changing N rewrites nearly every key→node mapping, so scaling the cache triggers a mass-miss storm against your backing store. A ring moves only about 1/N of keys.",
+      "Place both nodes and keys on the ring; a key is owned by the next node clockwise. Add a node and only the keys in its arc move; remove one and only its keys shift to the successor.",
+      "Use virtual nodes (many ring points per physical node) to smooth out the uneven arc sizes and hot spots that a handful of real nodes would otherwise create.",
+      "It underpins distributed caches (Redis Cluster, memcached), Dynamo-style databases and shard routers — anywhere membership changes and you can't afford to remap the world."
+    ],
+    "bundle": "/animations/consistent-hashing.js",
+    "poster": "/animations/consistent-hashing.png"
+  },
+  {
+    "slug": "api-gateway",
+    "title": [
+      "API ",
+      "Gateway"
+    ],
+    "category": "Networking",
+    "summary": "Put one front door in front of your services for routing, auth, rate-limiting and aggregation.",
+    "question": "When every client talks to every microservice directly, what cross-cutting mess does a gateway clean up?",
+    "details": [
+      "A gateway is the single entry point: it routes to the right service, terminates TLS, authenticates and authorizes, rate-limits, and can aggregate several calls into one client response.",
+      "It moves cross-cutting concerns out of every service and decouples clients from your internal topology, so you can split or move services without breaking callers.",
+      "Keep it thin: routing, auth and policy belong here, but business logic does not — a gateway that grows domain logic becomes a new monolith and a deploy bottleneck.",
+      "It's on the hot path for every request, so make it horizontally scalable and highly available and watch its added latency — it must not become the single point of failure it centralizes."
+    ],
+    "bundle": "/animations/api-gateway.js",
+    "poster": "/animations/api-gateway.png"
+  },
+  {
+    "slug": "message-queue",
+    "title": [
+      "Message ",
+      "Queue"
+    ],
+    "category": "Messaging",
+    "summary": "Put a queue between producer and consumer to decouple them and absorb spikes instead of dropping work.",
+    "question": "When a traffic spike outruns your consumer, why does synchronous calling lose work — and a queue not?",
+    "details": [
+      "A queue decouples producers from consumers in time: producers enqueue and return immediately, workers dequeue at their own pace, and a spike buffers in the queue instead of timing out.",
+      "It smooths load, enables retries and dead-letter queues for poison messages, and lets you scale consumers independently of producers.",
+      "Decide the delivery and ordering semantics: most queues are at-least-once (so consumers must be idempotent), and strict ordering usually costs you parallelism.",
+      "Treat queue depth as a first-class signal: a growing backlog means consumers can't keep up — alert on it, cap retention, and apply backpressure before the queue becomes an unbounded buffer."
+    ],
+    "bundle": "/animations/message-queue.js",
+    "poster": "/animations/message-queue.png"
+  },
+  {
+    "slug": "leader-election",
+    "title": [
+      "Leader ",
+      "Election"
+    ],
+    "category": "Coordination",
+    "summary": "Use a quorum to agree on a single leader so two nodes never both act as primary.",
+    "question": "When a network hiccup makes two nodes both think they're primary, how do you avoid split-brain writes?",
+    "details": [
+      "A consensus protocol (Raft, Paxos, ZAB) elects one leader by majority vote: only a node that wins a quorum (more than half) may lead, so two leaders can't be elected at once.",
+      "Quorums are why cluster sizes are odd (3, 5): a minority partition can't reach majority, so it steps down rather than accept writes — no split brain, at the cost of availability on the minority side.",
+      "Leaders hold a lease/term and must heartbeat; if followers miss heartbeats they start a new term and election, and fencing tokens stop a paused old leader from acting after it's replaced.",
+      "It's the backbone of coordination systems (etcd, ZooKeeper, Consul) used for config, locks and service discovery — elect once, then route all writes through the leader."
+    ],
+    "bundle": "/animations/leader-election.js",
+    "poster": "/animations/leader-election.png"
   }
 ]

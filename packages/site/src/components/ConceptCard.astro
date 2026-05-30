@@ -8,14 +8,24 @@ interface Props {
     poster: string;
   };
 }
+import { posterUrl } from "../lib/posterUrl";
 const { concept } = Astro.props;
 const fullTitle = concept.title.join("");
+const poster = posterUrl(concept.poster);
+const search = `${fullTitle} ${concept.summary} ${concept.category}`
+  .toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "");
 ---
-<a class="card" href={`/concepts/${concept.slug}/`} aria-label={fullTitle}>
+<a
+  class="card"
+  href={`/concepts/${concept.slug}/`}
+  aria-label={fullTitle}
+  data-category={concept.category}
+  data-search={search}
+>
   <div class="play-badge"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></div>
   <div class="poster">
     <img
-      src={concept.poster}
+      src={poster}
       alt={`${fullTitle} — animation preview`}
       width="864"
       height="1536"

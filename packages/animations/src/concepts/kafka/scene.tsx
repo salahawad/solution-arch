@@ -34,7 +34,7 @@ export default makeScene2D(function* (view) {
 
   view.add(
     <>
-      <TitleBlock ref={title} handle="@solution-arch" titleA="Apache " titleB="Kafka" subtitle="one log, many partitions, parallel consumers" position={[0, -830]} />
+      <TitleBlock ref={title} handle="github.com/salahawad/solution-arch" titleA="Apache " titleB="Kafka" subtitle="one log, many partitions, parallel consumers" position={[0, -830]} />
 
       {/* STATE 1 */}
       <SectionPill ref={p1Pill} variant="problem" label="SINGLE PARTITION" note="one lane, one consumer — capped" position={[10, -650]} />

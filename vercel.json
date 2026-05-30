@@ -3,5 +3,5 @@
   "framework": "astro",
   "buildCommand": "pnpm --filter @sa/site build",
   "outputDirectory": "packages/site/dist",
-  "installCommand": "pnpm install --no-frozen-lockfile"
+  "installCommand": "pnpm install --frozen-lockfile --filter @sa/site..."
 }

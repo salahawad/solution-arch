@@ -63,6 +63,7 @@ export default makeScene2D(function* (view) {
   const sWeb = [createRef<Rect>(), createRef<Rect>(), createRef<Rect>()];
   const sLoad = [createSignal(0), createSignal(0), createSignal(0)];
   const sReqEdge = createRef<Line>();
+  const sReqDot = createRef<Circle>();
   const sEdgeLine = [createRef<Line>(), createRef<Line>(), createRef<Line>()];
   const sEdgeDot = [createRef<Circle>(), createRef<Circle>(), createRef<Circle>()];
 
@@ -80,7 +81,7 @@ export default makeScene2D(function* (view) {
     <>
       <TitleBlock
         ref={title}
-        handle="@solution-arch"
+        handle="github.com/salahawad/solution-arch"
         titleA="Load "
         titleB="Balancing"
         subtitle="why one server melts while the others sit idle"
@@ -117,6 +118,7 @@ export default makeScene2D(function* (view) {
 
       <GlowNode ref={sReq} label="REQUESTS" accent={C.teal} width={220} height={88} position={[-400, 360]} />
       <Line ref={sReqEdge} points={[[-290, 360], [-160, 360]]} stroke={C.teal} lineWidth={3} opacity={0.5} lineDash={[2, 12]} end={0} />
+      <Circle ref={sReqDot} size={18} fill={C.teal} shadowColor={C.teal} shadowBlur={16} position={[-290, 360]} opacity={0} />
 
       <BalancerNode ref={bal} ringRef={ring} ring2Ref={ring2} position={[-30, 360]} label="LOAD BALANCER" sub="round-robin" />
 
@@ -190,9 +192,12 @@ export default makeScene2D(function* (view) {
     sLoad[1](33, 1.4),
     sLoad[2](33, 1.4),
   );
-  // round-robin dots
+  // round-robin: a request arrives at the balancer, then is routed to the next server
   for (let pass = 0; pass < 2; pass++) {
     for (let i = 0; i < 3; i++) {
+      sReqDot().position([-290, 360]).opacity(1);
+      yield* sReqDot().position([-160, 360], 0.26);
+      sReqDot().opacity(0);
       const from = new Vector2([95, 320 + i * 40]);
       const to = new Vector2([255, sWebY[i]]);
       sEdgeDot[i]().position(from).opacity(1);

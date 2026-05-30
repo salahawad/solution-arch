@@ -2,6 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import ConceptCard from "../../components/ConceptCard.astro";
 import concepts from "../../concepts.json";
+import { posterUrl } from "../../lib/posterUrl";
 
 export function getStaticPaths() {
   return concepts.map((c) => ({ params: { slug: c.slug }, props: { concept: c } }));
@@ -9,6 +10,7 @@ export function getStaticPaths() {
 
 const { concept } = Astro.props;
 const fullTitle = concept.title.join("");
+const poster = posterUrl(concept.poster);
 const others = concepts.filter((c) => c.slug !== concept.slug).slice(0, 4);
 const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animations/core.js" } });
 ---
@@ -16,7 +18,7 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
 <Base
   title={`${fullTitle} — solutionarch`}
   description={concept.summary}
-  ogImage={concept.poster}
+  ogImage={poster}
 >
   <Fragment slot="head">
     <script type="importmap" is:inline set:html={importmap} />
@@ -28,14 +30,11 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
     <div class="concept-grid">
       <div class="stage-wrap">
         <div class="stage" id="stage" data-bundle={concept.bundle}>
-          <img class="poster" src={concept.poster} alt={`${fullTitle} preview`} />
+          <img class="poster" src={poster} alt={`${fullTitle} preview`} />
           <div class="overlay" id="overlay" role="button" tabindex="0" aria-label={`Play ${fullTitle} animation`}>
             <div class="btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></div>
           </div>
         </div>
-        <p class="hint" style="justify-content:center;margin-top:16px">
-          renders live · play / pause / scrub
-        </p>
       </div>
 
       <div class="concept-info">
@@ -43,7 +42,12 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
         <h1>{concept.title[0]}<span class="accent">{concept.title[1]}</span></h1>
         <p class="question">{concept.question}</p>
         <p class="summary">{concept.summary}</p>
-        <span class="hint">Hit play — the animation renders live in your browser, not as a video.</span>
+        {concept.details?.length > 0 && (
+          <ul class="details">
+            {concept.details.map((d) => <li>{d}</li>)}
+          </ul>
+        )}
+        <span class="hint">Renders live in your browser, not a video — plays in view, click to pause.</span>
       </div>
     </div>
 
@@ -59,29 +63,84 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
     (function () {
       var stage = document.getElementById("stage");
       var overlay = document.getElementById("overlay");
-      function launch() {
-        if (stage.dataset.launched) return;
-        stage.dataset.launched = "1";
-        // load the Motion Canvas player runtime once, on demand (it pulls in core.js)
-        if (!window.__mcPlayerLoaded) {
-          var s = document.createElement("script");
-          s.type = "module";
-          s.src = "/animations/player.js";
-          document.head.appendChild(s);
-          window.__mcPlayerLoaded = true;
-        }
-        var player = document.createElement("motion-canvas-player");
-        player.setAttribute("src", stage.dataset.bundle);
+      var bundle = stage.dataset.bundle;
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var player = null;
+      var userPaused = false;
+
+      // load the Motion Canvas player runtime once, on demand (it pulls in core.js)
+      function ensureRuntime() {
+        if (window.__mcPlayerLoaded) return;
+        window.__mcPlayerLoaded = true;
+        var s = document.createElement("script");
+        s.type = "module";
+        s.src = "/animations/player.js";
+        s.onerror = function () { window.__mcPlayerLoaded = false; pause(); };
+        document.head.appendChild(s);
+      }
+
+      // keep the play button out of the tab order while the animation is running
+      function showOverlay(show) {
+        overlay.style.display = show ? "" : "none";
+        overlay.setAttribute("aria-hidden", show ? "false" : "true");
+        overlay.tabIndex = show ? 0 : -1;
+      }
+
+      function play() {
+        if (player) return;
+        userPaused = false;
+        ensureRuntime();
+        player = document.createElement("motion-canvas-player");
+        player.setAttribute("src", bundle);
         player.setAttribute("auto", "true");
         player.setAttribute("width", "1080");
         player.setAttribute("height", "1920");
+        player.setAttribute("aria-label", (document.title.split(" — ")[0] || "Concept") + " — animated diagram");
         stage.appendChild(player);
-        stage.classList.add("playing");
+        showOverlay(false);
+        // only fade the poster once the player actually upgrades; if player.js fails to
+        // load the poster + play button stay instead of leaving a dead black stage
+        var settled = false;
+        customElements.whenDefined("motion-canvas-player").then(function () {
+          settled = true;
+          if (player) stage.classList.add("playing");
+        });
+        setTimeout(function () { if (!settled && player) pause(); }, 6000);
       }
-      overlay.addEventListener("click", launch);
+
+      function pause() {
+        if (player) { player.remove(); player = null; } // disconnect -> deactivate() stops the rAF loop
+        stage.classList.remove("playing");
+        showOverlay(true);
+      }
+
+      // play button (on the poster) starts/resumes; clicking the running animation pauses it
+      overlay.addEventListener("click", function (e) { e.stopPropagation(); play(); });
       overlay.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); launch(); }
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); play(); }
       });
+      stage.addEventListener("click", function () { if (player) { userPaused = true; pause(); } });
+
+      // Autoplay when the stage is in view (unless reduced-motion), and pause when it scrolls
+      // out of view or the tab is hidden, so the canvas never loops unseen. A manual pause
+      // (userPaused) is remembered and not auto-resumed.
+      function inView() { var r = stage.getBoundingClientRect(); return r.top < innerHeight * 0.9 && r.bottom > innerHeight * 0.1; }
+      if (reduce) {
+        // reduced-motion: leave the static poster + play button; no autoplay
+      } else if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (en.isIntersecting && !document.hidden && !userPaused) play();
+            else if (!en.isIntersecting) pause();
+          });
+        }, { threshold: 0.25 }).observe(stage);
+        document.addEventListener("visibilitychange", function () {
+          if (document.hidden) pause();
+          else if (!userPaused && inView()) play();
+        });
+      } else {
+        if (document.readyState === "complete") play(); else window.addEventListener("load", play);
+      }
     })();
   </script>
 </Base>

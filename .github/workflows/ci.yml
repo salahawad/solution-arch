@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # browser for headless poster generation
+      - run: pnpm --filter @sa/animations exec playwright install --with-deps chromium
+
+      # rebuilds embeds + posters + site on a clean checkout. make-posters exits non-zero on a
+      # blank/errored poster, and build-embeds exits non-zero if any concept fails to compile,
+      # so this fails loudly instead of shipping a broken concept.
+      - run: pnpm rebuild:all
+
+      # the manifest is deterministic from the registry — fail if it was committed stale
+      - name: Check manifest is in sync with the registry
+        run: git diff --exit-code -- packages/site/src/concepts.json

@@ -36,7 +36,7 @@ export default makeScene2D(function* (view) {
 
   view.add(
     <>
-      <TitleBlock ref={title} handle="@solution-arch" titleA="Rate " titleB="Limiting" subtitle="absorb bursts, protect the service" position={[0, -830]} />
+      <TitleBlock ref={title} handle="github.com/salahawad/solution-arch" titleA="Rate " titleB="Limiting" subtitle="absorb bursts, protect the service" position={[0, -830]} />
 
       {/* STATE 1 */}
       <SectionPill ref={p1} variant="problem" label="NO LIMIT" note="a burst floods the service" position={[-60, -650]} />

@@ -3,10 +3,17 @@ import Base from "../layouts/Base.astro";
 import ConceptCard from "../components/ConceptCard.astro";
 import concepts from "../concepts.json";
 
-const order = ["Scaling", "Messaging", "Caching", "Data", "Networking", "Resilience"];
-const sorted = [...concepts].sort(
-  (a, b) => order.indexOf(a.category) - order.indexOf(b.category),
-);
+const order = ["Scaling", "Messaging", "Caching", "Data", "Networking", "Resilience", "Coordination"];
+const known = new Set(order);
+const groups = [
+  ...order
+    .map((cat) => ({ cat, items: concepts.filter((c) => c.category === cat) }))
+    .filter((g) => g.items.length > 0),
+  // any categories not in `order` fall to the end, in first-seen order
+  ...[...new Set(concepts.filter((c) => !known.has(c.category)).map((c) => c.category))].map(
+    (cat) => ({ cat, items: concepts.filter((c) => c.category === cat) }),
+  ),
+];
 ---
 
 <Base title="solutionarch — architecture concepts, animated">
@@ -23,10 +30,103 @@ const sorted = [...concepts].sort(
     <div class="cat-head">
       <h2>Concept library</h2>
       <div class="rule"></div>
-      <span class="mono" style="color:var(--muted-2);font-size:13px">{concepts.length} concepts</span>
+      <span class="mono" id="result-count" role="status" aria-live="polite" style="color:var(--muted-2);font-size:13px">{concepts.length} concepts</span>
     </div>
-    <div class="grid">
-      {sorted.map((c) => <ConceptCard concept={c} />)}
+
+    <div class="lib-toolbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 21l-4.35-4.35M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="concept-search" type="search" placeholder="Search concepts…" autocomplete="off" spellcheck="false" aria-label="Search concepts" />
+      </div>
+      <div class="pills" id="cat-pills" role="group" aria-label="Filter concepts by category">
+        <button class="pill is-active" data-cat="all" type="button" aria-pressed="true">All</button>
+        {groups.map((g) => <button class="pill" data-cat={g.cat} type="button" aria-pressed="false">{g.cat}</button>)}
+      </div>
     </div>
+
+    <div id="library-groups">
+      {groups.map((g) => (
+        <div class="cat-section" data-cat={g.cat}>
+          <div class="cat-head sub">
+            <h3>{g.cat}</h3>
+            <div class="rule"></div>
+            <span class="mono count">{g.items.length}</span>
+          </div>
+          <div class="grid">
+            {g.items.map((c) => <ConceptCard concept={c} />)}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <p id="no-results" class="no-results" role="status" aria-live="polite" hidden>No concepts match your search.</p>
   </section>
+
+  <script is:inline>
+    (function () {
+      var input = document.getElementById("concept-search");
+      var pills = document.getElementById("cat-pills");
+      var sections = Array.prototype.slice.call(document.querySelectorAll(".cat-section"));
+      var countEl = document.getElementById("result-count");
+      var noResults = document.getElementById("no-results");
+      var activeCat = "all";
+      var debounce;
+
+      // lowercase + strip diacritics so "exposé" matches "expose"
+      function norm(s) { return (s || "").toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, ""); }
+
+      function setActivePill(cat) {
+        activeCat = cat;
+        Array.prototype.slice.call(pills.children).forEach(function (p) {
+          var on = p.getAttribute("data-cat") === cat;
+          p.classList.toggle("is-active", on);
+          p.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      }
+
+      function syncUrl() {
+        var params = new URLSearchParams();
+        if (input.value.trim()) params.set("q", input.value.trim());
+        if (activeCat !== "all") params.set("cat", activeCat);
+        var qs = params.toString();
+        history.replaceState(null, "", qs ? "?" + qs : location.pathname);
+      }
+
+      function apply() {
+        var q = norm(input.value.trim());
+        var total = 0;
+        sections.forEach(function (sec) {
+          var catMatch = activeCat === "all" || sec.getAttribute("data-cat") === activeCat;
+          var visible = 0;
+          Array.prototype.slice.call(sec.querySelectorAll(".card")).forEach(function (card) {
+            var hay = card.getAttribute("data-search") || "";
+            var show = catMatch && (q === "" || hay.indexOf(q) !== -1);
+            card.style.display = show ? "" : "none";
+            if (show) visible++;
+          });
+          sec.hidden = visible === 0;
+          var c = sec.querySelector(".count");
+          if (c) c.textContent = visible;
+          total += visible;
+        });
+        countEl.textContent = total + (total === 1 ? " concept" : " concepts");
+        noResults.hidden = total !== 0;
+        syncUrl();
+      }
+
+      input.addEventListener("input", function () { clearTimeout(debounce); debounce = setTimeout(apply, 120); });
+      pills.addEventListener("click", function (e) {
+        var btn = e.target.closest(".pill");
+        if (!btn) return;
+        setActivePill(btn.getAttribute("data-cat"));
+        apply();
+      });
+
+      // restore filter state from the URL for deep-links / back-forward
+      var sp = new URLSearchParams(location.search);
+      if (sp.get("q")) input.value = sp.get("q");
+      if (sp.get("cat")) setActivePill(sp.get("cat"));
+      if (sp.get("q") || sp.get("cat")) apply();
+    })();
+  </script>
 </Base>

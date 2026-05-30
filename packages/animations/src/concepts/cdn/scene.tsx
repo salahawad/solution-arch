@@ -34,7 +34,7 @@ export default makeScene2D(function* (view) {
 
   view.add(
     <>
-      <TitleBlock ref={title} handle="@solution-arch" titleA="" titleB="CDN" subtitle="serve users from the nearest edge" position={[0, -830]} />
+      <TitleBlock ref={title} handle="github.com/salahawad/solution-arch" titleA="" titleB="CDN" subtitle="serve users from the nearest edge" position={[0, -830]} />
 
       {/* STATE 1 */}
       <SectionPill ref={p1} variant="problem" label="ONE ORIGIN" note="every user crosses the globe" position={[-40, -680]} />
