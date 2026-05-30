@@ -90,7 +90,7 @@ export default makeScene2D(function* (view) {
       />
 
       {/* ============ STATE 1 — DIRECT CALLS (problem) ============ */}
-      <SectionPill ref={pPill} variant="problem" label="DIRECT CALLS" note="every client wires each service" position={[-90, -660]} />
+      <SectionPill ref={pPill} variant="problem" label="DIRECT CALLS" note="clients wire every service" position={[-180, -660]} />
 
       <GlowNode ref={pClient} label="CLIENT" accent={C.coral} width={210} height={92} position={[-370, -450]} />
 
@@ -140,7 +140,7 @@ export default makeScene2D(function* (view) {
       <Line ref={sReqEdge} points={[[-295, 355], [-160, 355]]} stroke={C.teal} lineWidth={3} opacity={0.5} lineDash={[2, 12]} end={0} />
       <Circle ref={sReqDot} size={18} fill={C.teal} shadowColor={C.teal} shadowBlur={16} position={[-295, 355]} opacity={0} />
 
-      <BalancerNode ref={gw} ringRef={ring} ring2Ref={ring2} position={[-30, 355]} label="API GATEWAY" sub="auth · routing · TLS" />
+      <BalancerNode ref={gw} ringRef={ring} ring2Ref={ring2} position={[-30, 355]} label="API GATEWAY" sub="auth · routing" />
 
       <FlowEdge lineRef={sEdgeLine[0]} dotRef={sEdgeDot[0]} from={[95, 310]} to={[235, sSvcY[0]]} color={C.teal} />
       <FlowEdge lineRef={sEdgeLine[1]} dotRef={sEdgeDot[1]} from={[95, 340]} to={[235, sSvcY[1]]} color={C.teal} />

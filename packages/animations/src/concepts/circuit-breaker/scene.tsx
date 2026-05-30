@@ -160,7 +160,7 @@ export default makeScene2D(function* (view) {
       <FlowEdge lineRef={sBkEdge} dotRef={sBkDot} from={[200, 360]} to={[330, 360]} color={C.amber} />
 
       {/* Dependency B */}
-      <GlowNode ref={sB} label="B" accent={C.coral} width={130} height={120} fontSize={48} position={[400, 360]} />
+      <GlowNode ref={sB} label="B" labelColor={C.text} accent={C.coral} width={130} height={120} fontSize={48} position={[400, 360]} />
 
       <StatRow ref={sStats} position={[0, 700]} gap={22}>
         <StatCard label="STATE" value={brkLabel} accent={brkAccent} width={300} />
@@ -248,9 +248,7 @@ export default makeScene2D(function* (view) {
   // --- HALF-OPEN: a single probe is allowed through to B ---
   brkLabel('HALF-OPEN');
   brkAccent(C.amber);
-  spawn(pulseSonar(ring()));
   yield* waitFor(0.4);
-  spawn(pulseSonar(ring2()));
 
   // probe dot travels all the way to B and B recovers (turns teal)
   sBkDot().position([200, 360]).opacity(1);
@@ -263,6 +261,9 @@ export default makeScene2D(function* (view) {
   // --- CLOSED: traffic flows normally end to end ---
   brkLabel('CLOSED');
   brkAccent(C.teal);
+  // tint the recovered B teal — reads as "healthy" and makes the settled CLOSED frame the
+  // most-lit one, so the poster captures CLOSED rather than the briefer HALF-OPEN probe
+  yield* sB().fill(`${C.teal}22`, 0.4);
   for (let i = 0; i < 2; i++) {
     sReqDot().position([-305, 360]).opacity(1);
     yield* sReqDot().position([-270, 360], 0.2);

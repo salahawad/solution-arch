@@ -19,12 +19,13 @@ const OUT = path.join(SITE, 'public', 'animations');
 // treated as blank (the embed errored or never revealed itself) and the concept FAILS.
 const MIN_INK = parseInt(process.env.SWEEP_MIN_INK ?? '1000', 10);
 
-// Each animation builds up, holds its settled final state, then the player loops. We sweep a
-// window and keep the LATEST "fully built" frame — the last sample whose lit-pixel count is
-// within 10% of the peak. "Fully built" (near-peak ink) skips mid-build and looped-partial
-// frames; "latest" means animated counters have reached their final values. Robust to looping.
-const SWEEP_FROM = parseInt(process.env.SWEEP_FROM ?? '6000', 10);
-const SWEEP_TO = parseInt(process.env.SWEEP_TO ?? '18000', 10);
+// Each animation builds up, settles, then the player loops back to a hidden state. We sample
+// BODY ink (see INK) across the FIRST play-through only — stopping when body ink collapses
+// (the loop reset empties the diagram) — and keep that play-through's fullest frame. Both
+// panels visible + every counter at its final value is the most-lit frame, and confining to
+// play-through #1 stops loop-2's denser early frames from being mistaken for the settled end.
+const SWEEP_FROM = parseInt(process.env.SWEEP_FROM ?? '4000', 10);
+const SWEEP_TO = parseInt(process.env.SWEEP_TO ?? '20000', 10);
 const SWEEP_STEP = parseInt(process.env.SWEEP_STEP ?? '500', 10);
 
 // Counts non-background pixels in the player's (shadow-DOM) canvas, downscaled for speed.
@@ -106,18 +107,17 @@ for (const c of manifest) {
     await page.goto(`http://127.0.0.1:${port}/page/${c.slug}`, {waitUntil: 'load', timeout: 30000});
     const el = page.locator('motion-canvas-player').first();
     const frames = [];
-    let prev = 0, maxInk = 0;
+    let prev = 0, peak = 0;
     for (let t = SWEEP_FROM; t <= SWEEP_TO; t += SWEEP_STEP) {
       await page.waitForTimeout(t - prev); prev = t;
       const ink = await page.evaluate(INK);
-      if (ink > maxInk) maxInk = ink;
+      // body ink collapsing after we had content = the player looped; stop so only the first
+      // play-through is considered (its fullest frame is the settled end)
+      if (frames.length && peak > MIN_INK && ink < peak * 0.35) break;
+      if (ink > peak) peak = ink;
       if (ink > MIN_INK) frames.push({t, ink, buf: await el.screenshot()});
     }
-    if (frames.length) {
-      // latest frame within 10% of peak ink = the most settled fully-built frame
-      const built = frames.filter(f => f.ink >= maxInk * 0.9);
-      best = built.length ? built[built.length - 1] : frames.reduce((a, b) => (b.ink > a.ink ? b : a));
-    }
+    if (frames.length) best = frames.reduce((a, b) => (b.ink > a.ink ? b : a)); // fullest settled frame
     if (!best.buf) reason = 'no content frame captured (blank)';
     else if (best.ink < MIN_INK) reason = `blank/near-blank frame (ink ${best.ink} < ${MIN_INK})`;
     else if (errs.length) reason = `page error: ${errs.slice(0, 2).join('; ')}`;

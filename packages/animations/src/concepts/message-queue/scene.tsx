@@ -117,7 +117,7 @@ export default makeScene2D(function* (view) {
 
       <FlowEdge lineRef={pEdgeLine} dotRef={pEdgeDot} from={[-205, -440]} to={[230, -440]} color={C.coral} />
 
-      <ServerNode ref={pCons} name="consumer" load={pConsLoad} width={250} position={[365, -440]} />
+      <ServerNode ref={pCons} name="cons" load={pConsLoad} width={320} position={[365, -440]} />
 
       {/* dropped work — coral X marks that appear on the spike */}
       {pDrop.map((r, i) => (
@@ -177,9 +177,9 @@ export default makeScene2D(function* (view) {
       <FlowEdge lineRef={sOutLine[1]} dotRef={sOutDot[1]} from={[175, 360]} to={[290, wrkY[1]]} color={C.teal} />
       <FlowEdge lineRef={sOutLine[2]} dotRef={sOutDot[2]} from={[175, 390]} to={[290, wrkY[2]]} color={C.teal} />
 
-      <ServerNode ref={wrk[0]} name="worker-1" load={wLoad[0]} position={[400, wrkY[0]]} />
-      <ServerNode ref={wrk[1]} name="worker-2" load={wLoad[1]} position={[400, wrkY[1]]} />
-      <ServerNode ref={wrk[2]} name="worker-3" load={wLoad[2]} position={[400, wrkY[2]]} />
+      <ServerNode ref={wrk[0]} name="w1" load={wLoad[0]} width={320} position={[370, wrkY[0]]} />
+      <ServerNode ref={wrk[1]} name="w2" load={wLoad[1]} width={320} position={[370, wrkY[1]]} />
+      <ServerNode ref={wrk[2]} name="w3" load={wLoad[2]} width={320} position={[370, wrkY[2]]} />
 
       <StatRow ref={sStats} position={[0, 700]} gap={22}>
         <StatCard label="QUEUED" value={() => `${Math.round(sQueued())} buffered`} accent={C.teal} width={300} />

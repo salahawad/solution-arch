@@ -113,8 +113,8 @@ export default makeScene2D(function* (view) {
         ref={pPill}
         variant="problem"
         label="hash % N"
-        note="add a node and almost every key moves"
-        position={[-30, -660]}
+        note="almost every key moves"
+        position={[-160, -660]}
       />
 
       {/* key column (left) feeding nodes (right) by modulo */}
@@ -319,10 +319,10 @@ export default makeScene2D(function* (view) {
   );
   // load lights coral on the boxes to read as a miss storm
   yield* all(
-    pLoad[0](66, 0.5),
-    pLoad[1](66, 0.5),
-    pLoad[2](66, 0.5),
-    pLoad[3](66, 0.5),
+    pLoad[0](72, 0.5),
+    pLoad[1](72, 0.5),
+    pLoad[2](72, 0.5),
+    pLoad[3](72, 0.5),
   );
   yield* waitFor(0.8);
 

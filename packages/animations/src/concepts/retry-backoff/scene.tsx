@@ -70,7 +70,7 @@ export default makeScene2D(function* (view) {
   const sJitter = createSignal(0);
 
   // client vertical positions in each panel
-  const pCliY = [-660, -540, -420, -300];
+  const pCliY = [-600, -500, -400, -300];
   const sCliY = [120, 250, 380, 510];
   const pBY = -480; // recovering server in problem panel
   const sBY = 315; // recovering server in solution panel
@@ -88,7 +88,7 @@ export default makeScene2D(function* (view) {
       />
 
       {/* ============ STATE 1 — RETRY STORM (problem) ============ */}
-      <SectionPill ref={pPill} variant="problem" label="RETRY STORM" note="all clients retry at once — in lockstep" position={[-30, -680]} />
+      <SectionPill ref={pPill} variant="problem" label="RETRY STORM" note="all clients retry at once — in lockstep" position={[-30, -700]} />
 
       <GlowNode ref={pClient[0]} label="client-1" accent={C.coral} width={210} height={84} fontSize={26} position={[-360, pCliY[0]]} />
       <GlowNode ref={pClient[1]} label="client-2" accent={C.coral} width={210} height={84} fontSize={26} position={[-360, pCliY[1]]} />
@@ -105,7 +105,7 @@ export default makeScene2D(function* (view) {
       <StatRow ref={pStats} position={[0, -180]} gap={22}>
         <StatCard label="RETRIES" value="5× sync" accent={C.coral} width={300} />
         <StatCard label="LOAD" value="10×" accent={C.coral} width={300} />
-        <StatCard label="B" value="down" accent={C.coral} width={300} />
+        <StatCard label="SERVER" value="down" accent={C.coral} width={300} />
       </StatRow>
 
       {/* ============ STATE 2 — BACKOFF + JITTER (solution) ============ */}

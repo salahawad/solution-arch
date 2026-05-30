@@ -181,7 +181,7 @@ export default makeScene2D(function* (view) {
       <FlowEdge lineRef={sProjEdge[2]} dotRef={sProjDot[2]} from={[55, 400]} to={[175, 390]} color={C.teal} />
 
       <StatRow ref={sStats} position={[0, 700]} gap={22}>
-        <StatCard label="EVENTS" value="append-only" accent={C.teal} width={300} />
+        <StatCard label="EVENTS" value="appended" accent={C.teal} width={300} />
         <StatCard label="APPENDED" value={() => `${Math.round(sEvents())} kept`} accent={C.teal} width={300} />
         <StatCard label="PROJECTION" value="fast reads" accent={C.teal} width={300} />
       </StatRow>
@@ -253,16 +253,17 @@ export default makeScene2D(function* (view) {
 
   // replay the log into the projection read model
   yield* all(sProjEdge[0]().end(1, 0.35), sProjEdge[1]().end(1, 0.35), sProjEdge[2]().end(1, 0.35));
-  for (let pass = 0; pass < 2; pass++) {
-    for (let i = 0; i < 3; i++) {
-      const from = new Vector2([55, 320 + i * 40]);
-      const to = new Vector2([175, 330 + i * 30]);
-      sProjDot[i]().position(from).opacity(1);
-      yield* sProjDot[i]().position(to, 0.3);
-      sProjDot[i]().opacity(0);
-    }
+  for (let i = 0; i < 3; i++) {
+    const from = new Vector2([55, 320 + i * 40]);
+    const to = new Vector2([175, 330 + i * 30]);
+    sProjDot[i]().position(from).opacity(1);
+    yield* sProjDot[i]().position(to, 0.3);
+    sProjDot[i]().opacity(0);
   }
 
-  // settle — both panels fully visible (this frame is the poster)
-  yield* waitFor(1.6);
+  // settle — BOTH panels fully visible & static (this is the poster frame).
+  // Hold long and steady (no looping dot motion) so any sampled frame in the
+  // first play-through lands on the complete, settled diagram — mirroring the
+  // stable end-hold of the load-balancing scene.
+  yield* waitFor(4);
 });

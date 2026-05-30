@@ -108,8 +108,9 @@ export default makeScene2D(function* (view) {
         <Txt text="FAILED" fill={C.coral} fontFamily={F.mono} fontWeight={700} fontSize={22} letterSpacing={2} />
       </Node>
 
-      {/* failure burst over SHIPPING */}
-      <Node ref={pBoom} position={[stepX[2], pStepY]}>
+      {/* failure burst above SHIPPING — sits over the node's top edge so it
+          does not cut through the SHIPPING label text */}
+      <Node ref={pBoom} position={[stepX[2], pStepY - 95]}>
         <Circle size={150} stroke={C.coral} lineWidth={2} lineDash={[6, 10]} opacity={0.7} />
         <Line points={[[-30, -30], [30, 30]]} stroke={C.coral} lineWidth={6} />
         <Line points={[[30, -30], [-30, 30]]} stroke={C.coral} lineWidth={6} />

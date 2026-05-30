@@ -88,7 +88,7 @@ export default makeScene2D(function* (view) {
         ref={title}
         handle="github.com/salahawad/solution-arch"
         titleA="CAP "
-        titleB="Theorem"
+        titleB=" Theorem"
         subtitle="in a partition, choose consistency or availability"
         position={[0, -830]}
       />
