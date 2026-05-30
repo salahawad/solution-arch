@@ -91,7 +91,8 @@ pnpm dev:site     # Astro dev server
 - `pnpm rebuild:all` regenerates the animation assets (needs a browser for posters) and
   builds the site.
 - The publishable assets are committed, so **Vercel only runs `pnpm --filter @sa/site build`**
-  (see `vercel.json`). Output: `packages/site/dist`.
+  (see `vercel.json`). Astro is configured to emit the site to the repo-root `dist`,
+  which is what Vercel serves.
 - CI (`.github/workflows/ci.yml`) rebuilds embeds, posters, and the site on a clean checkout,
   and fails if any concept won't compile or the committed manifest drifts from the registry.
 
