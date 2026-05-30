@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.output/
+output/
+.astro/
+.vercel/
+*.log
+.DS_Store
+
+# Intermediate Motion Canvas build dir (per-concept). The publishable runtime assets
+# (bundles, core.js, player.js, posters, manifest) are committed under
+# packages/site/public/animations + packages/site/src/concepts.json so Vercel only
+# needs to run `astro build`. Regenerate them with `pnpm rebuild:all`.
+packages/animations/dist/

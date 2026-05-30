@@ -1,0 +1,66 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+const { title, description = "Senior-architect concepts, explained as short interactive visual animations.", ogImage } = Astro.props;
+const site = Astro.site ?? new URL("https://solution-arch.vercel.app");
+const ogUrl = ogImage ? new URL(ogImage, site).toString() : new URL("/animations/load-balancing.png", site).toString();
+const canonical = new URL(Astro.url.pathname, site).toString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    />
+    <slot name="head" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container inner">
+        <a class="brand" href="/">
+          <span class="dot"></span>
+          <span>solution<span class="accent">arch</span></span>
+        </a>
+        <a class="nav-link" href="/#library">Concept library</a>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container inner">
+        <span>Architecture concepts, animated with Motion Canvas.</span>
+        <span class="mono">solution-arch</span>
+      </div>
+    </footer>
+  </body>
+</html>

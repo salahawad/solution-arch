@@ -1,0 +1,32 @@
+---
+import Base from "../layouts/Base.astro";
+import ConceptCard from "../components/ConceptCard.astro";
+import concepts from "../concepts.json";
+
+const order = ["Scaling", "Messaging", "Caching", "Data", "Networking", "Resilience"];
+const sorted = [...concepts].sort(
+  (a, b) => order.indexOf(a.category) - order.indexOf(b.category),
+);
+---
+
+<Base title="solutionarch — architecture concepts, animated">
+  <section class="hero container">
+    <div class="eyebrow">for senior architects</div>
+    <h1>Architecture concepts,<br /><span class="accent">animated.</span></h1>
+    <p>
+      Short, interactive visual explainers of the systems you design every day —
+      each one renders live in your browser. Play, pause, and scrub through the idea.
+    </p>
+  </section>
+
+  <section id="library" class="container" style="padding-bottom: 64px">
+    <div class="cat-head">
+      <h2>Concept library</h2>
+      <div class="rule"></div>
+      <span class="mono" style="color:var(--muted-2);font-size:13px">{concepts.length} concepts</span>
+    </div>
+    <div class="grid">
+      {sorted.map((c) => <ConceptCard concept={c} />)}
+    </div>
+  </section>
+</Base>

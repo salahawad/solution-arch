@@ -1,0 +1,44 @@
+[
+  {
+    "slug": "load-balancing",
+    "title": ["Load ", "Balancing"],
+    "category": "Scaling",
+    "summary": "Spread requests across servers so no single box melts while the others sit idle.",
+    "question": "Why does one server hit 100% while the others sit idle — and how does a balancer fix it?"
+  },
+  {
+    "slug": "kafka",
+    "title": ["Apache ", "Kafka"],
+    "category": "Messaging",
+    "summary": "Durable, partitioned event streaming that decouples producers from consumers.",
+    "question": "How do partitions and consumer groups let Kafka scale a stream of events?"
+  },
+  {
+    "slug": "redis",
+    "title": ["", "Redis"],
+    "category": "Caching",
+    "summary": "An in-memory store: microsecond reads, the cache-aside pattern, and pub/sub.",
+    "question": "Why is reading from memory so much faster — and when does the cache help?"
+  },
+  {
+    "slug": "sharding",
+    "title": ["", "Sharding"],
+    "category": "Data",
+    "summary": "Split one huge dataset across nodes by shard key so writes scale horizontally.",
+    "question": "When one database can no longer hold the data, how do you split it cleanly?"
+  },
+  {
+    "slug": "cdn",
+    "title": ["", "CDN"],
+    "category": "Networking",
+    "summary": "Serve users from the nearest edge instead of a single far-away origin.",
+    "question": "Why does putting content at the edge cut latency from hundreds of ms to tens?"
+  },
+  {
+    "slug": "rate-limiting",
+    "title": ["Rate ", "Limiting"],
+    "category": "Resilience",
+    "summary": "A token bucket smooths bursts and shields the backend from overload.",
+    "question": "How does a token bucket absorb bursts while protecting the service behind it?"
+  }
+]

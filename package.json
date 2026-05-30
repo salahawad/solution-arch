@@ -1,0 +1,19 @@
+{
+  "name": "solution-arch",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Public site teaching senior-architect concepts as interactive Motion Canvas animations",
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp"]
+  },
+  "scripts": {
+    "dev:anim": "pnpm --filter @sa/animations dev",
+    "dev:site": "pnpm --filter @sa/site dev",
+    "build:embeds": "pnpm --filter @sa/animations build:embeds",
+    "build:posters": "pnpm --filter @sa/animations posters",
+    "build:site": "pnpm --filter @sa/site build",
+    "build": "pnpm run build:site",
+    "rebuild:all": "pnpm run build:embeds && pnpm run build:posters && pnpm run build:site"
+  }
+}

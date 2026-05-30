@@ -1,0 +1,31 @@
+---
+interface Props {
+  concept: {
+    slug: string;
+    title: [string, string];
+    category: string;
+    summary: string;
+    poster: string;
+  };
+}
+const { concept } = Astro.props;
+const fullTitle = concept.title.join("");
+---
+<a class="card" href={`/concepts/${concept.slug}/`} aria-label={fullTitle}>
+  <div class="play-badge"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></div>
+  <div class="poster">
+    <img
+      src={concept.poster}
+      alt={`${fullTitle} — animation preview`}
+      width="864"
+      height="1536"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+  <div class="meta">
+    <span class="cat">{concept.category}</span>
+    <h3>{concept.title[0]}<span style="color:var(--teal)">{concept.title[1]}</span></h3>
+    <p>{concept.summary}</p>
+  </div>
+</a>
