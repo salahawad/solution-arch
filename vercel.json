@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm --filter @sa/site build",
-  "outputDirectory": "packages/site/dist",
-  "installCommand": "pnpm install --frozen-lockfile --filter @sa/site..."
+  "framework": null,
+  "installCommand": "pnpm install --frozen-lockfile --filter @sa/site...",
+  "buildCommand": "pnpm --filter @sa/site build && rm -rf dist && cp -r packages/site/dist dist",
+  "outputDirectory": "dist"
 }
