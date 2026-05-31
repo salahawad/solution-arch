@@ -6,4 +6,7 @@ import {defineConfig} from 'astro/config';
 export default defineConfig({
   site: process.env.SITE_URL ?? 'https://solution-arch.vercel.app',
   build: {format: 'directory'},
+  // Bind to 0.0.0.0 so the dev server is reachable over the LAN (e.g. phone/other
+  // machine at http://<host-ip>:4321). Default is localhost-only.
+  server: {host: true},
 });
