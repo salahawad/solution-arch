@@ -288,6 +288,42 @@
     "poster": "/animations/message-queue.png"
   },
   {
+    "slug": "offline-first",
+    "title": [
+      "Offline ",
+      "First"
+    ],
+    "category": "Client",
+    "summary": "Read and write a local store first, then sync to the server in the background — so the app keeps working on a flaky or absent network.",
+    "question": "When the network drops mid-action, why does an online-only app lose the write — and how does offline-first keep it?",
+    "details": [
+      "Treat the network as an enhancement, not a requirement: the UI reads and writes a local store (IndexedDB/SQLite) first and renders instantly, so latency and connectivity stop sitting on the critical path of every interaction.",
+      "Queue mutations durably in an outbox and flush them with background sync when connectivity returns; tag each with an idempotency key so a retried flush after a flaky connection can't apply the same change twice.",
+      "Reconcile, don't clobber: concurrent edits across devices need a conflict strategy — last-write-wins is simplest, version vectors/CRDTs converge without a central lock — with the server as the source of truth on tie-breaks.",
+      "Cache the app shell in a service worker so cold loads work offline too, surface clear sync state (pending / synced / conflict) in the UI, and bound the outbox and local cache so they can't grow without limit."
+    ],
+    "bundle": "/animations/offline-first.js",
+    "poster": "/animations/offline-first.png"
+  },
+  {
+    "slug": "mobile-first",
+    "title": [
+      "Mobile ",
+      "First"
+    ],
+    "category": "Client",
+    "summary": "Design for the smallest, most constrained device first, then progressively enhance up to desktop — instead of cramming a desktop app onto a phone.",
+    "question": "Why does designing desktop-first ship a heavy, broken experience to the phones that are most of your traffic?",
+    "details": [
+      "Start from the constraints, not the luxury: design the core content and a single-column layout for a small screen and a slow CPU/network first, then add columns and richness at min-width breakpoints — progressive enhancement, not graceful degradation.",
+      "Performance is the feature on mobile: ship a small critical payload, lazy-load below-the-fold and heavy assets, defer non-critical JS, and honour Save-Data and reduced-motion — a desktop-first bundle that's fine on fibre stalls on 3G.",
+      "Design for touch and viewport reality: ≥44px tap targets, fluid type and spacing with clamp(), safe-area insets, and min(…, 100%) sizing so a fixed-width track never forces horizontal scroll on a 360px screen.",
+      "Keep layout fluid and content-driven: one source of truth that reflows across breakpoints beats separate m-dot and desktop sites, which double the work and drift out of sync."
+    ],
+    "bundle": "/animations/mobile-first.js",
+    "poster": "/animations/mobile-first.png"
+  },
+  {
     "slug": "kubernetes",
     "title": [
       "",
