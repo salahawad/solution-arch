@@ -67,7 +67,6 @@ export default makeScene2D(function* (view) {
 
   // ---- metric signals --------------------------------------------------
   const pRetry = createSignal(0);
-  const sJitter = createSignal(0);
 
   // client vertical positions in each panel
   const pCliY = [-600, -500, -400, -300];
@@ -109,7 +108,7 @@ export default makeScene2D(function* (view) {
       </StatRow>
 
       {/* ============ STATE 2 — BACKOFF + JITTER (solution) ============ */}
-      <SectionPill ref={sPill} variant="solution" label="BACKOFF + JITTER" note="retries spread over 1·2·4s ± random" position={[-30, 70]} />
+      <SectionPill ref={sPill} variant="solution" label="BACKOFF + JITTER" note="retries spread over rand(0, 1·2·4s)" position={[-30, 70]} />
 
       <GlowNode ref={sClient[0]} label="client-1" accent={C.teal} width={210} height={84} fontSize={26} position={[-360, sCliY[0]]} />
       <GlowNode ref={sClient[1]} label="client-2" accent={C.teal} width={210} height={84} fontSize={26} position={[-360, sCliY[1]]} />
@@ -129,7 +128,7 @@ export default makeScene2D(function* (view) {
 
       <StatRow ref={sStats} position={[0, 700]} gap={22}>
         <StatCard label="BACKOFF" value="1·2·4s" accent={C.teal} width={300} />
-        <StatCard label="JITTER" value={() => `± ${Math.round(sJitter())}%`} accent={C.amber} width={300} />
+        <StatCard label="JITTER" value="rand(0,t)" accent={C.amber} width={300} />
         <StatCard label="LOAD" value="1.2×" accent={C.teal} width={300} />
       </StatRow>
     </>,
@@ -201,7 +200,7 @@ export default makeScene2D(function* (view) {
     sEdgeLine[3]().end(1, 0.35),
   );
   yield* sStats().opacity(1, 0.4);
-  yield* all(sJitter(25, 1.0), sBLoad(20, 1.0));
+  yield* sBLoad(20, 1.0);
 
   // staggered retries: exponential backoff (1·2·4s) with random jitter,
   // so each client arrives at a different time and B stays healthy.

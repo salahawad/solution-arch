@@ -25,8 +25,8 @@ export default makeScene2D(function* (view) {
   const app2 = createRef<Rect>();
   const redis = createRef<Rect>();
   const db2 = createRef<Node>();
-  const e2 = mkEdge(); // app -> redis (hit)
-  const e3 = mkEdge(); // redis -> db (miss/populate)
+  const e2 = mkEdge(); // app -> redis (cache check / populate)
+  const e3 = mkEdge(); // app -> db (read on miss)
   const s2 = createRef();
   const lat2 = createSignal(40);
   const hit = createSignal(0);
@@ -48,12 +48,13 @@ export default makeScene2D(function* (view) {
 
       {/* STATE 2 */}
       <SectionPill ref={p2} variant="solution" label="CACHE-ASIDE" note="hot reads served from memory" position={[-50, 90]} />
-      <GlowNode ref={app2} label="app" width={180} height={104} position={[-410, 380]} />
-      <GlowNode ref={redis} label="Redis" accent={C.teal} width={210} height={120} position={[-20, 380]} fontSize={32}>
+      <GlowNode ref={redis} label="Redis" accent={C.teal} width={210} height={120} position={[-380, 380]} fontSize={32}>
       </GlowNode>
+      <GlowNode ref={app2} label="app" width={180} height={104} position={[0, 380]} />
       <DbNode ref={db2} label="DB" sub="disk" accent={C.muted} width={190} height={190} position={[410, 380]} />
-      {edge(e2, [-315, 380], [-130, 380], C.teal)}
-      {edge(e3, [90, 380], [310, 380], C.muted)}
+      {/* app is the hub: it checks the cache, and on a miss reads the DB itself (cache-aside) */}
+      {edge(e2, [-90, 380], [-275, 380], C.teal)}
+      {edge(e3, [90, 380], [315, 380], C.muted)}
       <StatRow ref={s2} position={[0, 690]} gap={22}>
         <StatCard label="LATENCY" value={() => `${lat2().toFixed(1)}ms`} accent={C.teal} width={300} />
         <StatCard label="HIT RATE" value={() => `${Math.round(hit())}%`} accent={C.teal} width={300} />
@@ -85,13 +86,13 @@ export default makeScene2D(function* (view) {
   yield* all(app2().scale(1, 0.45, easeOutBack), redis().scale(1, 0.5, easeOutBack), db2().scale(1, 0.5, easeOutBack));
   yield* all(drawEdge(e2, 0.3), drawEdge(e3, 0.3));
   yield* s2().opacity(1, 0.4);
-  // first read: miss -> goes to db, populates, then hits get fast
-  yield* sendDot(e2, [-315, 380], [-130, 380], 0.35);
-  yield* sendDot(e3, [90, 380], [310, 380], 0.4);
+  // first read: MISS — the app reads the DB directly, then populates the cache
+  yield* sendDot(e3, [90, 380], [315, 380], 0.4);
+  yield* sendDot(e2, [-90, 380], [-275, 380], 0.35);
   yield* all(lat2(0.5, 1.0), hit(95, 1.2));
-  // subsequent reads: fast hits, no db
+  // subsequent reads: served straight from memory — the DB is untouched
   for (let i = 0; i < 3; i++) {
-    yield* sendDot(e2, [-315, 380], [-130, 380], 0.28);
+    yield* sendDot(e2, [-90, 380], [-275, 380], 0.28);
   }
   yield* waitFor(1.6);
 });

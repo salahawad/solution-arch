@@ -194,10 +194,10 @@ export default makeScene2D(function* (view) {
     pAuth[2]().opacity(1, 0.3),
     pAuth[3]().opacity(1, 0.3),
     pRoutes(4, 1.0),
-    pLoad[0](74, 1.0),
-    pLoad[1](78, 1.0),
-    pLoad[2](72, 1.0),
-    pLoad[3](82, 1.0),
+    pLoad[0](58, 1.0),
+    pLoad[1](62, 1.0),
+    pLoad[2](57, 1.0),
+    pLoad[3](61, 1.0),
   );
 
   // every direct call duplicates auth — dots fan out to all four services
@@ -237,10 +237,10 @@ export default makeScene2D(function* (view) {
   );
   yield* all(
     sRoutes(4, 1.2),
-    sLoad[0](40, 1.2),
-    sLoad[1](40, 1.2),
-    sLoad[2](40, 1.2),
-    sLoad[3](40, 1.2),
+    sLoad[0](50, 1.2),
+    sLoad[1](50, 1.2),
+    sLoad[2](50, 1.2),
+    sLoad[3](50, 1.2),
   );
 
   // client hits the gateway once; the gateway authenticates then routes onward

@@ -109,7 +109,7 @@ export default makeScene2D(function* (view) {
 
       <StatRow ref={pStats} position={[0, -180]} gap={22}>
         <StatCard label="REQUESTS" value={() => `${Math.round(pReqN())} of 9`} width={300} />
-        <StatCard label="SERVED" value={() => `${Math.round(pServed())} (cap 3)`} accent={C.teal} width={300} />
+        <StatCard label="SERVED" value={() => `${Math.round(pServed())} (cap 6)`} accent={C.teal} width={300} />
         <StatCard label="DROPPED" value={() => `${Math.round(pDropped())}`} accent={C.coral} width={300} />
       </StatRow>
 
@@ -162,7 +162,7 @@ export default makeScene2D(function* (view) {
 
   // everything piles onto web-2
   yield* pEdgeLine().end(1, 0.4);
-  yield* all(pReqN(9, 1.4), pServed(3, 1.0), pDropped(6, 1.4), pLoad[1](100, 1.4));
+  yield* all(pReqN(9, 1.4), pServed(6, 1.0), pDropped(3, 1.4), pLoad[1](100, 1.4));
   for (let i = 0; i < 2; i++) {
     pEdgeDot().position([-250, -440]).opacity(1);
     yield* pEdgeDot().position([245, -440], 0.5);
@@ -188,9 +188,9 @@ export default makeScene2D(function* (view) {
   yield* all(sEdgeLine[0]().end(1, 0.35), sEdgeLine[1]().end(1, 0.35), sEdgeLine[2]().end(1, 0.35));
   yield* all(
     sReqN(9, 1.4),
-    sLoad[0](33, 1.4),
-    sLoad[1](33, 1.4),
-    sLoad[2](33, 1.4),
+    sLoad[0](50, 1.4),
+    sLoad[1](50, 1.4),
+    sLoad[2](50, 1.4),
   );
   // round-robin: a request arrives at the balancer, then is routed to the next server
   for (let pass = 0; pass < 2; pass++) {

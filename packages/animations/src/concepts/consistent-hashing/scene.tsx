@@ -378,7 +378,7 @@ export default makeScene2D(function* (view) {
         sKeys[i]().scale(1.4, 0.3).to(1, 0.3),
       ),
     ),
-    sMoved(12, 0.9),
+    sMoved(17, 0.9),
   );
 
   yield* waitFor(0.4);

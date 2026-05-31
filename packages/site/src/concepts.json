@@ -96,7 +96,7 @@
       "Limiting"
     ],
     "category": "Resilience",
-    "summary": "A token bucket smooths bursts and shields the backend from overload.",
+    "summary": "A token bucket admits bursts up to a cap and throttles the rest, shielding the backend from overload.",
     "question": "How does a token bucket absorb bursts while protecting the service behind it?",
     "details": [
       "Pick the algorithm for the shape you want: token bucket allows bursts up to a cap, leaky bucket smooths to a steady rate, and a sliding window gives accurate per-window counts. Token bucket is the usual default.",
@@ -246,7 +246,7 @@
       "With modulo hashing, changing N rewrites nearly every key→node mapping, so scaling the cache triggers a mass-miss storm against your backing store. A ring moves only about 1/N of keys.",
       "Place both nodes and keys on the ring; a key is owned by the next node clockwise. Add a node and only the keys in its arc move; remove one and only its keys shift to the successor.",
       "Use virtual nodes (many ring points per physical node) to smooth out the uneven arc sizes and hot spots that a handful of real nodes would otherwise create.",
-      "It underpins distributed caches (Redis Cluster, memcached), Dynamo-style databases and shard routers — anywhere membership changes and you can't afford to remap the world."
+      "It underpins distributed caches (memcached / ketama client hashing), Dynamo-style databases (Cassandra, DynamoDB) and shard routers — anywhere membership changes and you can't afford to remap the world."
     ],
     "bundle": "/animations/consistent-hashing.js",
     "poster": "/animations/consistent-hashing.png"
