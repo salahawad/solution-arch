@@ -2,8 +2,8 @@
 import Base from "../layouts/Base.astro";
 import ConceptCard from "../components/ConceptCard.astro";
 import concepts from "../concepts.json";
+import { CATEGORY_ORDER as order } from "../lib/categories";
 
-const order = ["Scaling", "Messaging", "Caching", "Data", "Networking", "Resilience", "Client", "Orchestration", "Coordination"];
 const known = new Set(order);
 const groups = [
   ...order

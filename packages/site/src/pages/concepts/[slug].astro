@@ -3,6 +3,7 @@ import Base from "../../layouts/Base.astro";
 import ConceptCard from "../../components/ConceptCard.astro";
 import concepts from "../../concepts.json";
 import { posterUrl } from "../../lib/posterUrl";
+import { CATEGORY_ORDER } from "../../lib/categories";
 
 export function getStaticPaths() {
   return concepts.map((c) => ({ params: { slug: c.slug }, props: { concept: c } }));
@@ -11,7 +12,19 @@ export function getStaticPaths() {
 const { concept } = Astro.props;
 const fullTitle = concept.title.join("");
 const poster = posterUrl(concept.poster);
-const others = concepts.filter((c) => c.slug !== concept.slug).slice(0, 4);
+// "More concepts" candidate pool, ranked by relevance to this concept: same
+// category first (tier 1), then everything else ordered by the canonical
+// category sequence (tier 2). We render the top POOL candidates; the inline
+// script below shuffles within each tier and reveals SHOW of them, so the picks
+// stay relevant but feel fresh on every visit. With JS off, CSS shows the first
+// SHOW (the most relevant) — see `.more .grid > .card:nth-child` in global.css.
+const POOL = 8;
+const SHOW = 4;
+const rest = concepts
+  .filter((c) => c.slug !== concept.slug && c.category !== concept.category)
+  .sort((a, b) => CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category));
+const sameCat = concepts.filter((c) => c.slug !== concept.slug && c.category === concept.category);
+const others = [...sameCat, ...rest].slice(0, POOL);
 const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animations/core.js" } });
 ---
 
@@ -53,7 +66,7 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
 
     <div class="more">
       <h2>More concepts</h2>
-      <div class="grid">
+      <div class="grid" id="more-grid" data-current-cat={concept.category} data-show={SHOW}>
         {others.map((c) => <ConceptCard concept={c} />)}
       </div>
     </div>
@@ -141,6 +154,35 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
       } else {
         if (document.readyState === "complete") play(); else window.addEventListener("load", play);
       }
+    })();
+  </script>
+
+  <script is:inline>
+    // "More concepts": keep it relevant but fresh. The page renders a candidate
+    // pool ordered by relevance (same category first); split it into tier 1
+    // (same category as this concept) and tier 2 (the rest), shuffle each tier,
+    // then keep the first `data-show` cards and drop the others from the DOM so
+    // their lazy posters never fetch. Relevance wins slots first; order/fill
+    // varies each visit. With JS off, CSS already shows the first 4.
+    (function () {
+      var grid = document.getElementById("more-grid");
+      if (!grid) return;
+      var show = parseInt(grid.getAttribute("data-show"), 10) || 4;
+      var current = grid.getAttribute("data-current-cat");
+      var cards = Array.prototype.slice.call(grid.querySelectorAll(".card"));
+      function shuffle(a) {
+        for (var i = a.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = a[i]; a[i] = a[j]; a[j] = t;
+        }
+        return a;
+      }
+      var tier1 = shuffle(cards.filter(function (c) { return c.dataset.category === current; }));
+      var tier2 = shuffle(cards.filter(function (c) { return c.dataset.category !== current; }));
+      tier1.concat(tier2).forEach(function (card, i) {
+        if (i < show) grid.appendChild(card); // re-append the kept cards in shuffled order
+        else card.remove();                   // drop extras; their lazy <img> never loads
+      });
     })();
   </script>
 </Base>

@@ -193,6 +193,10 @@ img { display: block; max-width: 100%; }
 
 .more { margin-top: 56px; }
 .more h2 { font-family: var(--mono); font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin: 0 0 18px; }
+/* The concept page renders a pool of relevance-ranked candidates; show only the
+   first 4 by default. Inline JS reshuffles within relevance tiers and trims the
+   pool to 4 — this rule is the no-JS / pre-shuffle fallback. */
+.more .grid > .card:nth-child(n + 5) { display: none; }
 
 /* ---- footer ---- */
 .site-footer { border-top: 1px solid var(--border); margin-top: 80px; padding: 36px 0; color: var(--muted-2); font-size: 13px; }
