@@ -191,9 +191,10 @@ export default makeScene2D(function* (view) {
         position={ringCenter}
         points={() => {
           const pts: Vector2[] = [];
-          // arc from node4Angle back to the previous node (node-0 at -90), clockwise
-          const a0 = node4Angle;
-          const a1 = -90 - 360; // wrap so we sweep clockwise to node-0
+          // highlight ONLY the slice reassigned to the new node: from the previous node
+          // (node-0 at -90) clockwise to n3 (node4Angle ≈ -20) — a small ~70° arc, not the whole ring
+          const a0 = -90;
+          const a1 = node4Angle;
           const steps = 28;
           for (let i = 0; i <= steps; i++) {
             const a = a0 + ((a1 - a0) * i) / steps;

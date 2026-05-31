@@ -84,19 +84,30 @@ pnpm dev:site     # Astro dev server
 
 ## Add a concept
 
+> Source paths below are relative to `packages/animations/`; run the `pnpm` commands from the repo root.
+
 1. `src/concepts/<slug>/scene.tsx` (+ `scene.meta`) — compose the reusable components.
 2. `src/projects/<slug>.ts` — `makeProject({ scenes: [scene] })`.
-3. Add an entry to `src/concepts/registry.json`.
-4. `pnpm rebuild:all` — rebuilds bundles, posters, manifest, and the site.
+3. Add an entry to `src/concepts/registry.json` (the single source of truth).
+4. Run `pnpm rebuild:all` — rebuilds bundles, posters, the manifest, and the site. Posters
+   render in a headless Chromium; if your environment doesn't have one, install it first with
+   `pnpm --filter @sa/animations exec playwright install --with-deps chromium` (CI does this for you).
+5. **Commit the regenerated assets** along with your source: the manifest
+   `packages/site/src/concepts.json` and the bundle + poster under `packages/site/public/animations/`.
+   CI fails if the committed manifest drifts from the registry, so don't skip this.
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup, the pre-PR checklist, and commit conventions.
 
 ## Build & deploy
 
-- `pnpm rebuild:all` regenerates the animation assets (needs a browser for posters) and
+- `pnpm rebuild:all` regenerates the animation assets (needs a headless browser for posters) and
   builds the site.
-- The publishable assets are committed, so **Vercel only runs `pnpm --filter @sa/site build`**
-  (see `vercel.json`). Output: `packages/site/dist`.
-- CI (`.github/workflows/ci.yml`) rebuilds embeds, posters, and the site on a clean checkout,
-  and fails if any concept won't compile or the committed manifest drifts from the registry.
+- The publishable assets are committed, so the deploy **only runs `pnpm --filter @sa/site build`**.
+  There is no `vercel.json` — the framework preset (Astro), build command, and output directory
+  (`packages/site/dist`) are configured in the Vercel project dashboard.
+- CI (`.github/workflows/ci.yml`) rebuilds embeds, posters, and the site on a clean checkout, and
+  fails if any concept won't compile or the committed manifest (`packages/site/src/concepts.json`)
+  drifts from the registry.
 
 ## Stack
 
