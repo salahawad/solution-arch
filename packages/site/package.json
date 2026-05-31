@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/stage-dist.mjs",
     "preview": "astro preview"
   },
   "dependencies": {
