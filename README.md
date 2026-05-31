@@ -17,28 +17,28 @@ animations** built with [Motion Canvas](https://motioncanvas.io). Each concept r
 
 | Concept | What it shows |
 | --- | --- |
-| [Load Balancing](https://solution-arch.vercel.app/concepts/load-balancing/) | Spread requests across servers so no single box melts while the others sit idle. |
-| [Apache Kafka](https://solution-arch.vercel.app/concepts/kafka/) | Durable, partitioned event streaming that decouples producers from consumers. |
-| [Redis](https://solution-arch.vercel.app/concepts/redis/) | An in-memory store: microsecond reads, the cache-aside pattern, and pub/sub. |
-| [Sharding](https://solution-arch.vercel.app/concepts/sharding/) | Split one huge dataset across nodes by shard key so writes scale horizontally. |
-| [CDN](https://solution-arch.vercel.app/concepts/cdn/) | Serve users from the nearest edge instead of a single far-away origin. |
-| [Rate Limiting](https://solution-arch.vercel.app/concepts/rate-limiting/) | A token bucket smooths bursts and shields the backend from overload. |
 | [Circuit Breaker](https://solution-arch.vercel.app/concepts/circuit-breaker/) | Trip open on a failing dependency so calls fail fast instead of dragging the whole system down. |
+| [Rate Limiting](https://solution-arch.vercel.app/concepts/rate-limiting/) | A token bucket smooths bursts and shields the backend from overload. |
 | [Retry Backoff](https://solution-arch.vercel.app/concepts/retry-backoff/) | Spread retries with exponential backoff and jitter so a blip doesn't become a self-inflicted stampede. |
 | [Idempotency](https://solution-arch.vercel.app/concepts/idempotency/) | Make an operation safe to repeat so a retried request is processed exactly once, not twice. |
+| [Sharding](https://solution-arch.vercel.app/concepts/sharding/) | Split one huge dataset across nodes by shard key so writes scale horizontally. |
 | [Database Replication](https://solution-arch.vercel.app/concepts/replication/) | Copy writes from a primary to read replicas to scale reads and survive a node failure. |
 | [Saga](https://solution-arch.vercel.app/concepts/saga/) | Coordinate a transaction across services with local commits and compensating actions instead of 2PC. |
 | [CAP Theorem](https://solution-arch.vercel.app/concepts/cap-theorem/) | Under a network partition you can keep consistency or availability — not both. Choose per use case. |
 | [Event Sourcing](https://solution-arch.vercel.app/concepts/event-sourcing/) | Store the immutable stream of changes, not just current state — and build read models (CQRS) from it. |
 | [Consistent Hashing](https://solution-arch.vercel.app/concepts/consistent-hashing/) | Map keys to nodes on a ring so adding or removing a node moves only a small slice of keys. |
-| [API Gateway](https://solution-arch.vercel.app/concepts/api-gateway/) | Put one front door in front of your services for routing, auth, rate-limiting and aggregation. |
-| [Message Queue](https://solution-arch.vercel.app/concepts/message-queue/) | Put a queue between producer and consumer to decouple them and absorb spikes instead of dropping work. |
+| [Load Balancing](https://solution-arch.vercel.app/concepts/load-balancing/) | Spread requests across servers so no single box melts while the others sit idle. |
 | [Leader Election](https://solution-arch.vercel.app/concepts/leader-election/) | Use a quorum to agree on a single leader so two nodes never both act as primary. |
+| [Apache Kafka](https://solution-arch.vercel.app/concepts/kafka/) | Durable, partitioned event streaming that decouples producers from consumers. |
+| [Message Queue](https://solution-arch.vercel.app/concepts/message-queue/) | Put a queue between producer and consumer to decouple them and absorb spikes instead of dropping work. |
 | [Kubernetes](https://solution-arch.vercel.app/concepts/kubernetes/) | The design mistakes that take clusters down — missing limits, bad probes, single replicas — and how to avoid them. |
+| [CDN](https://solution-arch.vercel.app/concepts/cdn/) | Serve users from the nearest edge instead of a single far-away origin. |
+| [API Gateway](https://solution-arch.vercel.app/concepts/api-gateway/) | Put one front door in front of your services for routing, auth, rate-limiting and aggregation. |
+| [Redis](https://solution-arch.vercel.app/concepts/redis/) | An in-memory store: microsecond reads, the cache-aside pattern, and pub/sub. |
 | [Offline-First](https://solution-arch.vercel.app/concepts/offline-first/) | Read and write a local store first, then sync in the background, so the app keeps working on a flaky or absent network. |
 | [Mobile-First](https://solution-arch.vercel.app/concepts/mobile-first/) | Design for the smallest, most constrained device first, then progressively enhance up to desktop. |
 
-The list is driven by [`packages/animations/src/concepts/registry.json`](packages/animations/src/concepts/registry.json) — the single source of truth.
+The list is driven by [`packages/animations/src/concepts/registry.json`](packages/animations/src/concepts/registry.json) — the single source of truth — and grouped on the site in the category order from [`packages/site/src/lib/categories.ts`](packages/site/src/lib/categories.ts), tuned to lead with depth (Resilience, Data) over entry-level recognition for a senior-architect audience.
 
 ## Monorepo layout
 

@@ -1,5 +1,23 @@
 [
   {
+    "slug": "consistent-hashing",
+    "title": [
+      "Consistent ",
+      "Hashing"
+    ],
+    "category": "Scaling",
+    "summary": "Map keys to nodes on a ring so adding or removing a node moves only a small slice of keys.",
+    "question": "Why does hash(key) % N remap almost everything when you add one node — and how does a ring fix it?",
+    "details": [
+      "With modulo hashing, changing N rewrites nearly every key→node mapping, so scaling the cache triggers a mass-miss storm against your backing store. A ring moves only about 1/N of keys.",
+      "Place both nodes and keys on the ring; a key is owned by the next node clockwise. Add a node and only the keys in its arc move; remove one and only its keys shift to the successor.",
+      "Use virtual nodes (many ring points per physical node) to smooth out the uneven arc sizes and hot spots that a handful of real nodes would otherwise create.",
+      "It underpins distributed caches (memcached / ketama client hashing), Dynamo-style databases (Cassandra, DynamoDB) and shard routers — anywhere membership changes and you can't afford to remap the world."
+    ],
+    "bundle": "/animations/consistent-hashing.js",
+    "poster": "/animations/consistent-hashing.png"
+  },
+  {
     "slug": "load-balancing",
     "title": [
       "Load ",
@@ -90,24 +108,6 @@
     "poster": "/animations/cdn.png"
   },
   {
-    "slug": "rate-limiting",
-    "title": [
-      "Rate ",
-      "Limiting"
-    ],
-    "category": "Resilience",
-    "summary": "A token bucket admits bursts up to a cap and throttles the rest, shielding the backend from overload.",
-    "question": "How does a token bucket absorb bursts while protecting the service behind it?",
-    "details": [
-      "Pick the algorithm for the shape you want: token bucket allows bursts up to a cap, leaky bucket smooths to a steady rate, and a sliding window gives accurate per-window counts. Token bucket is the usual default.",
-      "Decide the scope and key — per-user, per-IP, per-API-key or global — and where the counter lives. Distributed limits need a shared store like Redis and must tolerate its latency and failure.",
-      "Fail open or closed on purpose, and make rejection cheap: return 429 with Retry-After, shed load early, and never let the limiter itself become the bottleneck.",
-      "Combine it with backpressure and graceful degradation: bound queue depth, prioritize critical traffic, and pair client retries with jittered exponential backoff to avoid synchronized retry storms."
-    ],
-    "bundle": "/animations/rate-limiting.js",
-    "poster": "/animations/rate-limiting.png"
-  },
-  {
     "slug": "circuit-breaker",
     "title": [
       "Circuit ",
@@ -124,6 +124,24 @@
     ],
     "bundle": "/animations/circuit-breaker.js",
     "poster": "/animations/circuit-breaker.png"
+  },
+  {
+    "slug": "rate-limiting",
+    "title": [
+      "Rate ",
+      "Limiting"
+    ],
+    "category": "Resilience",
+    "summary": "A token bucket admits bursts up to a cap and throttles the rest, shielding the backend from overload.",
+    "question": "How does a token bucket absorb bursts while protecting the service behind it?",
+    "details": [
+      "Pick the algorithm for the shape you want: token bucket allows bursts up to a cap, leaky bucket smooths to a steady rate, and a sliding window gives accurate per-window counts. Token bucket is the usual default.",
+      "Decide the scope and key — per-user, per-IP, per-API-key or global — and where the counter lives. Distributed limits need a shared store like Redis and must tolerate its latency and failure.",
+      "Fail open or closed on purpose, and make rejection cheap: return 429 with Retry-After, shed load early, and never let the limiter itself become the bottleneck.",
+      "Combine it with backpressure and graceful degradation: bound queue depth, prioritize critical traffic, and pair client retries with jittered exponential backoff to avoid synchronized retry storms."
+    ],
+    "bundle": "/animations/rate-limiting.js",
+    "poster": "/animations/rate-limiting.png"
   },
   {
     "slug": "retry-backoff",
@@ -232,24 +250,6 @@
     ],
     "bundle": "/animations/event-sourcing.js",
     "poster": "/animations/event-sourcing.png"
-  },
-  {
-    "slug": "consistent-hashing",
-    "title": [
-      "Consistent ",
-      "Hashing"
-    ],
-    "category": "Scaling",
-    "summary": "Map keys to nodes on a ring so adding or removing a node moves only a small slice of keys.",
-    "question": "Why does hash(key) % N remap almost everything when you add one node — and how does a ring fix it?",
-    "details": [
-      "With modulo hashing, changing N rewrites nearly every key→node mapping, so scaling the cache triggers a mass-miss storm against your backing store. A ring moves only about 1/N of keys.",
-      "Place both nodes and keys on the ring; a key is owned by the next node clockwise. Add a node and only the keys in its arc move; remove one and only its keys shift to the successor.",
-      "Use virtual nodes (many ring points per physical node) to smooth out the uneven arc sizes and hot spots that a handful of real nodes would otherwise create.",
-      "It underpins distributed caches (memcached / ketama client hashing), Dynamo-style databases (Cassandra, DynamoDB) and shard routers — anywhere membership changes and you can't afford to remap the world."
-    ],
-    "bundle": "/animations/consistent-hashing.js",
-    "poster": "/animations/consistent-hashing.png"
   },
   {
     "slug": "api-gateway",
