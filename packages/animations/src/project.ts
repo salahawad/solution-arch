@@ -17,6 +17,9 @@ import consistentHashing from './concepts/consistent-hashing/scene?scene';
 import apiGateway from './concepts/api-gateway/scene?scene';
 import messageQueue from './concepts/message-queue/scene?scene';
 import leaderElection from './concepts/leader-election/scene?scene';
+import kubernetes from './concepts/kubernetes/scene?scene';
+import offlineFirst from './concepts/offline-first/scene?scene';
+import mobileFirst from './concepts/mobile-first/scene?scene';
 
 // Editor preview shows the whole library. The embed build uses the per-concept files
 // in projects/ to produce one bundle per concept.
@@ -25,5 +28,6 @@ export default makeProject({
     loadBalancing, kafka, redis, sharding, cdn, rateLimiting,
     circuitBreaker, retryBackoff, idempotency, replication, saga, capTheorem,
     eventSourcing, consistentHashing, apiGateway, messageQueue, leaderElection,
+    kubernetes, offlineFirst, mobileFirst,
   ],
 });

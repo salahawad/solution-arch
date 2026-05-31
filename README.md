@@ -13,7 +13,7 @@ animations** built with [Motion Canvas](https://motioncanvas.io). Each concept r
 
 ## The library
 
-17 concepts, each with a bespoke storyboard and an embeddable live player:
+20 concepts, each with a bespoke storyboard and an embeddable live player:
 
 | Concept | What it shows |
 | --- | --- |
@@ -34,6 +34,9 @@ animations** built with [Motion Canvas](https://motioncanvas.io). Each concept r
 | [API Gateway](https://solution-arch.vercel.app/concepts/api-gateway/) | Put one front door in front of your services for routing, auth, rate-limiting and aggregation. |
 | [Message Queue](https://solution-arch.vercel.app/concepts/message-queue/) | Put a queue between producer and consumer to decouple them and absorb spikes instead of dropping work. |
 | [Leader Election](https://solution-arch.vercel.app/concepts/leader-election/) | Use a quorum to agree on a single leader so two nodes never both act as primary. |
+| [Kubernetes](https://solution-arch.vercel.app/concepts/kubernetes/) | The design mistakes that take clusters down — missing limits, bad probes, single replicas — and how to avoid them. |
+| [Offline-First](https://solution-arch.vercel.app/concepts/offline-first/) | Read and write a local store first, then sync in the background, so the app keeps working on a flaky or absent network. |
+| [Mobile-First](https://solution-arch.vercel.app/concepts/mobile-first/) | Design for the smallest, most constrained device first, then progressively enhance up to desktop. |
 
 The list is driven by [`packages/animations/src/concepts/registry.json`](packages/animations/src/concepts/registry.json) — the single source of truth.
 
