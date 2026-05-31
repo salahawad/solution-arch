@@ -208,6 +208,19 @@
     ]
   },
   {
+    "slug": "kubernetes",
+    "title": ["", "Kubernetes"],
+    "category": "Orchestration",
+    "summary": "The design mistakes that take clusters down — missing limits, bad probes, single replicas — and how to avoid them.",
+    "question": "Why do most Kubernetes outages trace back to how the workload was configured, not to a Kubernetes bug?",
+    "details": [
+      "No resource requests/limits is the classic failure: the scheduler bin-packs blindly, a memory leak triggers OOMKills, and a noisy neighbour starves healthy pods. Set requests so the scheduler reserves room, set limits to contain blast radius, and keep request≈limit (Guaranteed QoS) for latency-critical pods so they're evicted last.",
+      "Probes are misused everywhere: with no readiness probe the Service sends traffic to a pod that isn't warm; with no liveness probe a wedged process never restarts; and pointing all three at the same heavy endpoint creates restart loops. Gate traffic with readiness, restart with liveness, and protect slow boots with a startupProbe.",
+      "A single replica — or replicas with no spread — is a self-inflicted SPOF: one node failure or a routine `drain` takes the whole service down. Run ≥3 replicas, spread them with topologySpreadConstraints/anti-affinity, and add a PodDisruptionBudget so an upgrade can't evict them all at once.",
+      "Treating the control plane as free is the failure that scales worst: unbounded objects, giant ConfigMaps and chatty controllers melt the API server, and non-HA etcd makes the cluster's brain a SPOF. Run 3–5 control-plane/etcd nodes, set resource quotas and etcd size limits, and never put app data in etcd."
+    ]
+  },
+  {
     "slug": "leader-election",
     "title": ["Leader ", "Election"],
     "category": "Coordination",
