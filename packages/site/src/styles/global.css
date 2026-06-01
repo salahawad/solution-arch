@@ -383,8 +383,13 @@ img { display: block; max-width: 100%; }
 @media (prefers-reduced-motion: reduce) { .presence-dot { animation: none; } }
 /* the class sets display, so the hidden attribute needs an explicit override */
 [data-presence][hidden] { display: none; }
-/* keep the 64px header uncluttered on small screens */
-@media (max-width: 560px) { .presence { display: none; } }
+/* On small screens the header can't fit brand + presence + nav. Keep the live
+   presence badge (the signal visitors care about) and drop the nav link, which
+   is redundant — the brand logo already links home, and home is the library. */
+@media (max-width: 560px) {
+  .header-right .nav-link { display: none; }
+  .presence { font-size: 12.5px; padding: 5px 11px; }
+}
 
 /* ---- Habit loop UI ---- */
 
