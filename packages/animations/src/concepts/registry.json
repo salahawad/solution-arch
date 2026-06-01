@@ -414,5 +414,18 @@
       "Fit what matters instead of stuffing everything: retrieve only the relevant chunks (RAG), summarize or compress older history, and use a sliding window that evicts the least useful turns rather than the oldest by default.",
       "Budget the window like any scarce resource: reserve room for the response, count tokens before you send, and decide per feature what gets the space — system instructions, fresh context, or conversation history."
     ]
+  },
+  {
+    "slug": "monitoring",
+    "title": ["", "Monitoring"],
+    "category": "Observability",
+    "summary": "Metrics, traces, and logs answer what, where, and why — correlate all three or you're guessing.",
+    "question": "A p99 spike fires an alert — metrics say it's slow, but how do you find where the time went and why?",
+    "details": [
+      "The three pillars answer different questions: metrics tell you THAT something is wrong (a p99 spike) and stay cheap to retain; traces tell you WHERE the time went (which span or service); logs tell you WHY (the actual error). One pillar alone leaves you guessing at the other two.",
+      "Correlation is what turns three tools into one workflow: stamp a shared trace/request ID across metric exemplars, spans, and structured logs so one click pivots spike → slow span → offending log line, instead of hand-matching timestamps across dashboards.",
+      "Monitoring watches the failures you predicted (known dashboards, threshold alerts); observability lets you ask new questions about behaviour you didn't anticipate — high-cardinality, exemplar-linked telemetry is what makes an unforeseen root cause findable. You want both.",
+      "Each pillar has a cost/retention trade-off: metrics are cheap and long-lived, traces should be tail-sampled (keep the slow and failed ones), and logs are the expensive firehose — structure them and sample the chatty paths, or telemetry becomes your biggest bill."
+    ]
   }
 ]

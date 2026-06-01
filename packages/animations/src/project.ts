@@ -32,6 +32,7 @@ import aiAgents from './concepts/ai-agents/scene?scene';
 import vectorDb from './concepts/vector-db/scene?scene';
 import hallucination from './concepts/hallucination/scene?scene';
 import contextWindow from './concepts/context-window/scene?scene';
+import monitoring from './concepts/monitoring/scene?scene';
 
 // Editor preview shows the whole library. The embed build uses the per-concept files
 // in projects/ to produce one bundle per concept.
@@ -42,6 +43,6 @@ export default makeProject({
     eventSourcing, consistentHashing, apiGateway, messageQueue, leaderElection,
     kubernetes, offlineFirst, mobileFirst,
     distributedTracing, canary, backpressure, bulkhead, outbox, deadLetterQueue, autoscaling,
-    rag, aiAgents, vectorDb, hallucination, contextWindow,
+    rag, aiAgents, vectorDb, hallucination, contextWindow, monitoring,
   ],
 });

@@ -13,7 +13,7 @@ animations** built with [Motion Canvas](https://motioncanvas.io). Each concept r
 
 ## The library
 
-32 concepts, each with a bespoke storyboard and an embeddable live player:
+33 concepts, each with a bespoke storyboard and an embeddable live player:
 
 | Concept | What it shows |
 | --- | --- |
@@ -49,6 +49,7 @@ animations** built with [Motion Canvas](https://motioncanvas.io). Each concept r
 | [Vector Database](https://solution-arch.vercel.app/concepts/vector-db/) | Search by meaning, not keywords: embed everything into vectors and find the nearest neighbours to a query. |
 | [Hallucination](https://solution-arch.vercel.app/concepts/hallucination/) | LLMs state false things with total confidence; design for it with grounding, citations, and the option to say "I don't know". |
 | [Context Window](https://solution-arch.vercel.app/concepts/context-window/) | A model can only see a fixed budget of tokens at once; everything past it is truncated, so you must choose what to keep. |
+| [Monitoring](https://solution-arch.vercel.app/concepts/monitoring/) | Metrics, traces, and logs answer what, where, and why — correlate all three or you're guessing. |
 
 The list is driven by [`packages/animations/src/concepts/registry.json`](packages/animations/src/concepts/registry.json) — the single source of truth — and grouped on the site in the category order from [`packages/site/src/lib/categories.ts`](packages/site/src/lib/categories.ts), tuned to lead with depth (Resilience, Data) over entry-level recognition for a senior-architect audience.
 
