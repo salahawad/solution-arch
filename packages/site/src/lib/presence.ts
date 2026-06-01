@@ -30,3 +30,48 @@ export class InMemoryPresenceStore implements PresenceStore {
 export function isValidId(id: unknown): id is string {
   return typeof id === 'string' && id.length > 0 && id.length <= 64;
 }
+
+/** JSON response helper; presence is always uncached. */
+export function json(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
+  });
+}
+
+/** Default "still online" window: a visitor counts if seen within 60s. */
+export const PRESENCE_WINDOW_MS = 60_000;
+
+/**
+ * Handle a presence heartbeat. Pure over an injected store + clock so it is
+ * testable without Upstash. POST { id } -> 200 { count }.
+ */
+export async function handlePresence(
+  request: Request,
+  store: PresenceStore,
+  now: () => number,
+  windowMs: number = PRESENCE_WINDOW_MS,
+): Promise<Response> {
+  if (request.method !== 'POST') {
+    return json({ error: 'method not allowed' }, 405);
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: 'invalid json' }, 400);
+  }
+
+  const id = (body as { id?: unknown } | null)?.id;
+  if (!isValidId(id)) {
+    return json({ error: 'invalid id' }, 400);
+  }
+
+  try {
+    const count = await store.recordAndCount(id, now(), windowMs);
+    return json({ count });
+  } catch {
+    return json({ error: 'store unavailable' }, 503);
+  }
+}

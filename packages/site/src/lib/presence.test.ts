@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { InMemoryPresenceStore, isValidId } from './presence';
+import { InMemoryPresenceStore, isValidId, handlePresence, type PresenceStore } from './presence';
 
 describe('InMemoryPresenceStore', () => {
   it('counts distinct ids within the window', async () => {
@@ -46,5 +46,48 @@ describe('isValidId', () => {
     expect(isValidId(undefined)).toBe(false);
     expect(isValidId(null)).toBe(false);
     expect(isValidId('x'.repeat(65))).toBe(false);
+  });
+});
+
+describe('handlePresence', () => {
+  const post = (body: unknown) =>
+    new Request('http://localhost/api/presence', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: typeof body === 'string' ? body : JSON.stringify(body),
+    });
+
+  it('returns the count for a valid id', async () => {
+    const store = new InMemoryPresenceStore();
+    const res = await handlePresence(post({ id: 'a' }), store, () => 1000);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ count: 1 });
+  });
+
+  it('rejects a missing/invalid id with 400', async () => {
+    const store = new InMemoryPresenceStore();
+    const res = await handlePresence(post({ nope: true }), store, () => 1000);
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects non-POST with 405', async () => {
+    const store = new InMemoryPresenceStore();
+    const req = new Request('http://localhost/api/presence', { method: 'GET' });
+    const res = await handlePresence(req, store, () => 1000);
+    expect(res.status).toBe(405);
+  });
+
+  it('returns 400 for malformed json', async () => {
+    const store = new InMemoryPresenceStore();
+    const res = await handlePresence(post('{not json'), store, () => 1000);
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 503 when the store throws', async () => {
+    const store: PresenceStore = {
+      recordAndCount: () => Promise.reject(new Error('down')),
+    };
+    const res = await handlePresence(post({ id: 'a' }), store, () => 1000);
+    expect(res.status).toBe(503);
   });
 });
