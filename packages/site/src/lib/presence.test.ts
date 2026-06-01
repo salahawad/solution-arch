@@ -46,6 +46,7 @@ describe('isValidId', () => {
     expect(isValidId(undefined)).toBe(false);
     expect(isValidId(null)).toBe(false);
     expect(isValidId('x'.repeat(65))).toBe(false);
+    expect(isValidId('   ')).toBe(false);
   });
 });
 
@@ -89,5 +90,17 @@ describe('handlePresence', () => {
     };
     const res = await handlePresence(post({ id: 'a' }), store, () => 1000);
     expect(res.status).toBe(503);
+  });
+
+  it('passes windowMs through to the store', async () => {
+    let received = -1;
+    const store: PresenceStore = {
+      recordAndCount: async (_id, _now, windowMs) => {
+        received = windowMs;
+        return 1;
+      },
+    };
+    await handlePresence(post({ id: 'a' }), store, () => 1000, 12345);
+    expect(received).toBe(12345);
   });
 });

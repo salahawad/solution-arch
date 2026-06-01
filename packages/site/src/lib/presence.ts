@@ -19,6 +19,8 @@ export class InMemoryPresenceStore implements PresenceStore {
   async recordAndCount(id: string, now: number, windowMs: number): Promise<number> {
     this.seen.set(id, now);
     const cutoff = now - windowMs;
+    // Deleting during Map iteration is safe in ES2015+: not-yet-visited entries
+    // are simply skipped. Evict anyone last seen at or before the cutoff.
     for (const [key, lastSeen] of this.seen) {
       if (lastSeen <= cutoff) this.seen.delete(key);
     }
@@ -28,7 +30,7 @@ export class InMemoryPresenceStore implements PresenceStore {
 
 /** A visitor id is a non-empty string of at most 64 chars (a UUID is 36). */
 export function isValidId(id: unknown): id is string {
-  return typeof id === 'string' && id.length > 0 && id.length <= 64;
+  return typeof id === 'string' && id.trim().length > 0 && id.length <= 64;
 }
 
 /** JSON response helper; presence is always uncached. */
