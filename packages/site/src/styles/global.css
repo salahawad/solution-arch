@@ -19,6 +19,10 @@
 }
 
 * { box-sizing: border-box; }
+/* The `hidden` attribute must win over class rules that set `display` (e.g. .toast,
+   .explored, .view-count). Without this, an empty `hidden` element styled inline-block/flex
+   still renders (the UA's `[hidden]{display:none}` loses to author class selectors). */
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
