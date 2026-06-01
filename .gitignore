@@ -7,6 +7,10 @@ output/
 *.log
 .DS_Store
 
+# Local-only: Claude config and superpowers specs (kept on disk, not on GitHub)
+.claude/
+docs/superpowers/
+
 # Intermediate Motion Canvas build dir (per-concept). The publishable runtime assets
 # (bundles, core.js, player.js, posters, manifest) are committed under
 # packages/site/public/animations + packages/site/src/concepts.json so Vercel only
