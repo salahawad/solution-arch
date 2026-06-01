@@ -161,4 +161,63 @@ const groups = [
     })();
   </script>
   <script type="application/json" id="sa-concepts" set:html={JSON.stringify(concepts.map((c) => ({slug: c.slug, added: c.added})))}></script>
+  <script>
+    import {readProgress, writeProgress} from "../lib/storage";
+    import {newSlugs, exploredCount, conceptOfTheDay} from "../lib/progress";
+
+    type Entry = {slug: string; added: string};
+    const dataEl = document.getElementById("sa-concepts");
+    const concepts: Entry[] = dataEl ? JSON.parse(dataEl.textContent || "[]") : [];
+    const slugs = concepts.map((c) => c.slug);
+    const cards = Array.from(document.querySelectorAll<HTMLElement>(".card[data-slug]"));
+
+    const prog = readProgress();
+
+    // 1) explored bar
+    const exploredWrap = document.getElementById("explored");
+    const exploredN = document.getElementById("explored-n");
+    const exploredFill = document.getElementById("explored-fill");
+    if (exploredWrap && exploredN && exploredFill && slugs.length) {
+      const n = exploredCount(prog.seen, slugs);
+      exploredN.textContent = String(n);
+      exploredFill.style.width = Math.round((n / slugs.length) * 100) + "%";
+      exploredWrap.hidden = false;
+    }
+
+    // 2) seen decoration
+    const seenSet = new Set(prog.seen);
+    for (const card of cards) if (seenSet.has(card.dataset.slug!)) card.classList.add("is-seen");
+
+    // 3) new-since-last-visit badges + banner (then advance lastVisit)
+    const fresh = new Set(newSlugs(concepts, prog.lastVisit));
+    if (fresh.size) {
+      for (const card of cards) {
+        if (fresh.has(card.dataset.slug!)) {
+          card.classList.add("is-new");
+          const pill = document.createElement("span");
+          pill.className = "new-pill mono";
+          pill.textContent = "NEW";
+          card.appendChild(pill);
+        }
+      }
+      const banner = document.getElementById("new-banner");
+      if (banner) {
+        banner.textContent = `${fresh.size} new concept${fresh.size === 1 ? "" : "s"} since you were away.`;
+        banner.hidden = false;
+      }
+    }
+    writeProgress({...prog, lastVisit: Date.now()});
+
+    // 4) today's concept — clone the matching library card into the hero slot
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const pick = conceptOfTheDay(slugs, dateStr);
+    const source = cards.find((c) => c.dataset.slug === pick);
+    const slot = document.getElementById("today-slot");
+    const todayWrap = document.getElementById("today");
+    if (pick && source && slot && todayWrap) {
+      slot.appendChild(source.cloneNode(true));
+      todayWrap.hidden = false;
+    }
+  </script>
 </Base>
