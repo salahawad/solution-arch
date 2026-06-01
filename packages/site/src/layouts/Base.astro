@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import { posterUrl } from "../lib/posterUrl";
 import concepts from "../concepts.json";
+import PresenceBadge from "../components/PresenceBadge.astro";
 
 interface Props {
   title: string;
@@ -51,7 +52,10 @@ const canonical = new URL(Astro.url.pathname, site).toString();
           <span class="dot"></span>
           <span>solution<span class="accent">arch</span></span>
         </a>
-        <a class="nav-link" href="/#library">Concept library</a>
+        <div class="header-right">
+          <PresenceBadge />
+          <a class="nav-link" href="/#library">Concept library</a>
+        </div>
       </div>
     </header>
 
