@@ -5,6 +5,9 @@ output/
 .astro/
 .vercel/
 *.log
+.env
+.env.*
+!.env.example
 .DS_Store
 
 # Local-only: Claude config and superpowers specs (kept on disk, not on GitHub)
