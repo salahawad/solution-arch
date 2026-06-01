@@ -66,6 +66,7 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
           <span class="share-label">Share</span>
         </button>
         <span class="toast" id="toast" role="status" aria-live="polite" hidden></span>
+        <span class="view-count mono" id="view-count" hidden></span>
       </div>
     </div>
 
@@ -197,14 +198,34 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
   <script>
     import {readProgress, writeProgress} from "../../lib/storage";
     import {addSeen} from "../../lib/progress";
+    import {formatCount} from "../../lib/views";
 
-    // mark this concept "seen" the first time its player actually plays
+    const stage = document.getElementById("stage");
+    const slug = stage?.dataset.slug;
+    const countEl = document.getElementById("view-count");
+    function showCount(n: number) {
+      if (countEl && n > 0) { countEl.textContent = `${formatCount(n)} explored this`; countEl.hidden = false; }
+    }
+
+    // initial social-proof count (also covers returning visitors who won't re-ping)
+    if (slug) {
+      fetch("/api/stats")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (d && typeof d.counts?.[slug] === "number") showCount(d.counts[slug]); })
+        .catch(() => {});
+    }
+
+    // first play on this device: mark seen + count the view exactly once (seen = dedup source)
     document.addEventListener("sa:concept-played", (e) => {
-      const slug = (e as CustomEvent).detail?.slug;
-      if (!slug) return;
+      const s = (e as CustomEvent).detail?.slug;
+      if (!s) return;
       const prog = readProgress();
-      const next = addSeen(prog.seen, slug);
-      if (next !== prog.seen) writeProgress({...prog, seen: next});
+      if (prog.seen.includes(s)) return;
+      writeProgress({...prog, seen: addSeen(prog.seen, s)});
+      fetch(`/api/view/${s}`, {method: "POST"})
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (d && typeof d.count === "number") showCount(d.count); })
+        .catch(() => {});
     });
 
     // Share: native sheet where supported, copy-link fallback otherwise
@@ -220,19 +241,10 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
       const url = location.href;
       const data = {title: btn.dataset.title || document.title, text: btn.dataset.summary || "", url};
       try {
-        if (navigator.share) {
-          await navigator.share(data);
-          return;
-        }
-      } catch {
-        return; // user cancelled the native sheet
-      }
-      try {
-        await navigator.clipboard.writeText(url);
-        flash("Link copied");
-      } catch {
-        flash(url);
-      }
+        if (navigator.share) { await navigator.share(data); return; }
+      } catch { return; }
+      try { await navigator.clipboard.writeText(url); flash("Link copied"); }
+      catch { flash(url); }
     });
   </script>
 </Base>
