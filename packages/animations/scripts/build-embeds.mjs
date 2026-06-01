@@ -72,6 +72,7 @@ for (const {c, bundle} of built) {
     summary: c.summary,
     question: c.question,
     details: c.details ?? [],
+    added: c.added ?? null,
     bundle: `/animations/${c.slug}.js`,
     poster: `/animations/${c.slug}.png`,
   });

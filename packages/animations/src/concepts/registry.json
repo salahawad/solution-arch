@@ -1,7 +1,10 @@
 [
   {
     "slug": "consistent-hashing",
-    "title": ["Consistent ", "Hashing"],
+    "title": [
+      "Consistent ",
+      "Hashing"
+    ],
     "category": "Scaling",
     "summary": "Map keys to nodes on a ring so adding or removing a node moves only a small slice of keys.",
     "question": "Why does hash(key) % N remap almost everything when you add one node — and how does a ring fix it?",
@@ -10,11 +13,15 @@
       "Place both nodes and keys on the ring; a key is owned by the next node clockwise. Add a node and only the keys in its arc move; remove one and only its keys shift to the successor.",
       "Use virtual nodes (many ring points per physical node) to smooth out the uneven arc sizes and hot spots that a handful of real nodes would otherwise create.",
       "It underpins distributed caches (memcached / ketama client hashing), Dynamo-style databases (Cassandra, DynamoDB) and shard routers — anywhere membership changes and you can't afford to remap the world."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "load-balancing",
-    "title": ["Load ", "Balancing"],
+    "title": [
+      "Load ",
+      "Balancing"
+    ],
     "category": "Scaling",
     "summary": "Spread requests across servers so no single box melts while the others sit idle.",
     "question": "Why does one server hit 100% while the others sit idle — and how does a balancer fix it?",
@@ -23,11 +30,15 @@
       "Choose the layer. An L4 (TCP) balancer is fast and protocol-agnostic; an L7 (HTTP) balancer routes by path, header or cookie, terminates TLS, retries idempotent calls and splits traffic for canaries — at a higher per-request cost.",
       "Health is the whole point: active probes plus passive outlier detection eject a bad node in seconds. Add slow-start so a cold instance isn't hit at full weight, and connection draining so deploys don't drop in-flight requests.",
       "Don't let the balancer become the single point of failure — run it redundantly behind a VIP/anycast or DNS failover, and keep N+1 capacity headroom so losing one node doesn't cascade into a retry storm."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "kafka",
-    "title": ["Apache ", "Kafka"],
+    "title": [
+      "Apache ",
+      "Kafka"
+    ],
     "category": "Messaging",
     "summary": "Durable, partitioned event streaming that decouples producers from consumers.",
     "question": "How do partitions and consumer groups let Kafka scale a stream of events?",
@@ -36,11 +47,15 @@
       "A consumer group scales out only up to the partition count — extra consumers sit idle. Size partitions for peak parallelism up front, because raising the count later changes which partition a key hashes to, breaking per-key ordering for existing keys.",
       "Durability is tunable per topic: acks=all with min.insync.replicas trades latency for not losing writes, and replication factor 3 survives a broker loss. Decide this per topic, not globally.",
       "Kafka retains the log, so consumers own their offset — you get replay, backfill and dead-letter handling for free, but you must design for at-least-once delivery with idempotent consumers."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "redis",
-    "title": ["", "Redis"],
+    "title": [
+      "",
+      "Redis"
+    ],
     "category": "Caching",
     "summary": "An in-memory store: microsecond reads, the cache-aside pattern, and pub/sub.",
     "question": "Why is reading from memory so much faster — and when does the cache help?",
@@ -49,11 +64,15 @@
       "It's single-threaded per shard, so O(N) commands like KEYS or a huge SUNION block every client. Keep operations O(1)/O(log N) and SCAN instead of KEYS in production.",
       "Memory is finite: set maxmemory with an eviction policy (allkeys-lru vs volatile-*), and watch for hot keys and big keys that skew a single shard.",
       "Make the durability/HA story explicit — RDB/AOF persistence, replicas with Sentinel or Cluster for failover — and remember a cache stampede on a cold restart can melt the database behind it."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "sharding",
-    "title": ["", "Sharding"],
+    "title": [
+      "",
+      "Sharding"
+    ],
     "category": "Data",
     "summary": "Split one huge dataset across nodes by shard key so writes scale horizontally.",
     "question": "When one database can no longer hold the data, how do you split it cleanly?",
@@ -62,11 +81,15 @@
       "Range keys keep range scans cheap but hotspot on sequential IDs; hash keys spread load but kill range queries. Consistent hashing limits how much data moves when you add a shard.",
       "Cross-shard joins and transactions are the real cost: denormalize, co-locate related data under the same key, and avoid distributed transactions wherever you can.",
       "Plan for rebalancing from day one — online split/move, a routing layer that can change the shard map without downtime, and backups that are consistent per shard."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "cdn",
-    "title": ["", "CDN"],
+    "title": [
+      "",
+      "CDN"
+    ],
     "category": "Networking",
     "summary": "Serve users from the nearest edge instead of a single far-away origin.",
     "question": "Why does putting content at the edge cut latency from hundreds of ms to tens?",
@@ -75,11 +98,15 @@
       "Key the cache carefully — the Vary header, query strings and cookies fragment the cache and tank your hit rate, so normalize them at the edge.",
       "Invalidation is the hard part: prefer immutable, content-hashed URLs over purges so a deploy is instant and atomic across every PoP.",
       "The CDN is also your first line of defense and edge compute: TLS termination, WAF, rate limiting and edge functions move work off the origin — but keep an origin-shield/failover path for cache misses."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "circuit-breaker",
-    "title": ["Circuit ", "Breaker"],
+    "title": [
+      "Circuit ",
+      "Breaker"
+    ],
     "category": "Resilience",
     "summary": "Trip open on a failing dependency so calls fail fast instead of dragging the whole system down.",
     "question": "When a downstream service slows to a crawl, why does the caller die too — and how does a breaker stop it?",
@@ -88,11 +115,15 @@
       "After the window it goes HALF-OPEN and lets a few probe requests through; success closes it, failure re-opens it — that's how it recovers without a human in the loop.",
       "Tune the trip threshold, window and probe count to the dependency: too sensitive and you shed load needlessly, too lax and the cascade happens before it opens.",
       "A breaker can't trip on a call that never returns, so pair it with timeouts, a fallback or cached response for the open state, and bulkheads so one slow dependency can't exhaust every thread."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "rate-limiting",
-    "title": ["Rate ", "Limiting"],
+    "title": [
+      "Rate ",
+      "Limiting"
+    ],
     "category": "Resilience",
     "summary": "A token bucket admits bursts up to a cap and throttles the rest, shielding the backend from overload.",
     "question": "How does a token bucket absorb bursts while protecting the service behind it?",
@@ -101,11 +132,15 @@
       "Decide the scope and key — per-user, per-IP, per-API-key or global — and where the counter lives. Distributed limits need a shared store like Redis and must tolerate its latency and failure.",
       "Fail open or closed on purpose, and make rejection cheap: return 429 with Retry-After, shed load early, and never let the limiter itself become the bottleneck.",
       "Combine it with backpressure and graceful degradation: bound queue depth, prioritize critical traffic, and pair client retries with jittered exponential backoff to avoid synchronized retry storms."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "retry-backoff",
-    "title": ["Retry ", "Backoff"],
+    "title": [
+      "Retry ",
+      "Backoff"
+    ],
     "category": "Resilience",
     "summary": "Spread retries with exponential backoff and jitter so a blip doesn't become a self-inflicted stampede.",
     "question": "Why do naive retries turn a brief outage into a retry storm that keeps the service down?",
@@ -114,11 +149,15 @@
       "Exponential backoff (1s, 2s, 4s…) plus full jitter de-synchronizes clients and spreads load over time, giving the dependency room to actually recover.",
       "Cap the attempts and the total deadline, and only retry idempotent operations — retrying a non-idempotent write is how you double-charge or duplicate work.",
       "Combine it with a circuit breaker and a retry budget (e.g. retries ≤ 10% of requests) so retries can't amplify load without bound during a partial outage."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "idempotency",
-    "title": ["", "Idempotency"],
+    "title": [
+      "",
+      "Idempotency"
+    ],
     "category": "Resilience",
     "summary": "Make an operation safe to repeat so a retried request is processed exactly once, not twice.",
     "question": "A network blip makes the client retry a payment — how do you stop it charging the customer twice?",
@@ -127,11 +166,15 @@
       "Persist the key and its outcome atomically with the side effect (same transaction), or you get a window where the work is done but the key isn't recorded — and the retry runs it again.",
       "Give keys a sensible TTL and scope (per endpoint, per user), and decide what an in-flight duplicate should do: return 409, wait, or replay the stored response.",
       "Idempotency keys make at-least-once delivery safe everywhere — payment APIs, webhook handlers, queue consumers — by turning unavoidable duplicates into harmless no-ops."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "replication",
-    "title": ["Database ", "Replication"],
+    "title": [
+      "Database ",
+      "Replication"
+    ],
     "category": "Data",
     "summary": "Copy writes from a primary to read replicas to scale reads and survive a node failure.",
     "question": "When one database is both your read bottleneck and your single point of failure, what's the first move?",
@@ -140,11 +183,15 @@
       "Replication is usually asynchronous, so replicas lag and reads can be stale — pin the user to the primary or a synchronous replica (read-your-writes) where they must see their own change immediately.",
       "On primary loss, promote a replica. Automate failover carefully: fence the old primary and require a quorum to promote, or you risk split brain and lost writes.",
       "Replication scales reads, not writes — once writes are the bottleneck you need sharding. The two compose: shard for write scale, replicate each shard for read scale and HA."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "saga",
-    "title": ["", "Saga"],
+    "title": [
+      "",
+      "Saga"
+    ],
     "category": "Data",
     "summary": "Coordinate a transaction across services with local commits and compensating actions instead of 2PC.",
     "question": "An order spans payment, inventory and shipping with no global transaction — how do you keep it consistent?",
@@ -153,11 +200,15 @@
       "Choose orchestration (a central coordinator drives the steps) when you need to observe and control a complex flow, or choreography (services react to events) for looser coupling but harder debugging.",
       "Compensations are not rollbacks — intermediate states were visible, so design for it: reserve-then-confirm, idempotent compensations, and handle the already-shipped case.",
       "Sagas give you atomicity of outcome, not isolation: concurrent sagas can observe each other's partial state, so add semantic locks or versioning where that matters."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "cap-theorem",
-    "title": ["CAP ", "Theorem"],
+    "title": [
+      "CAP ",
+      "Theorem"
+    ],
     "category": "Data",
     "summary": "Under a network partition you can keep consistency or availability — not both. Choose per use case.",
     "question": "When the network splits your cluster in two, what do you give up — correctness or uptime?",
@@ -166,11 +217,15 @@
       "It's a per-operation choice, not a per-database one: a bank balance wants CP (reject rather than be wrong), a cart or feed wants AP (serve stale, reconcile later).",
       "The fuller picture is PACELC: even with no partition you trade latency vs consistency — quorum reads with R + W > N are correct but slower than reading the nearest replica.",
       "AP systems push conflict resolution onto you: last-write-wins, vector clocks or CRDTs decide what happens when both sides accepted writes during the split."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "event-sourcing",
-    "title": ["Event ", "Sourcing"],
+    "title": [
+      "Event ",
+      "Sourcing"
+    ],
     "category": "Data",
     "summary": "Store the immutable stream of changes, not just current state — and build read models (CQRS) from it.",
     "question": "When updating state in place loses history and reads fight writes, what do you store instead?",
@@ -179,11 +234,15 @@
       "CQRS separates the write model (the event log) from read models (projections) tuned per query, so reads no longer contend with writes and each side scales independently.",
       "Projections are eventually consistent and replayable: a new view is built by replaying history and a bug is fixed by reprojecting — but consumers must tolerate the lag.",
       "The costs are real: events are forever (schema versioning and upcasting matter), and you need snapshots so rebuilding a long-lived aggregate doesn't replay millions of events."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "api-gateway",
-    "title": ["API ", "Gateway"],
+    "title": [
+      "API ",
+      "Gateway"
+    ],
     "category": "Networking",
     "summary": "Put one front door in front of your services for routing, auth, rate-limiting and aggregation.",
     "question": "When every client talks to every microservice directly, what cross-cutting mess does a gateway clean up?",
@@ -192,11 +251,15 @@
       "It moves cross-cutting concerns out of every service and decouples clients from your internal topology, so you can split or move services without breaking callers.",
       "Keep it thin: routing, auth and policy belong here, but business logic does not — a gateway that grows domain logic becomes a new monolith and a deploy bottleneck.",
       "It's on the hot path for every request, so make it horizontally scalable and highly available and watch its added latency — it must not become the single point of failure it centralizes."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "message-queue",
-    "title": ["Message ", "Queue"],
+    "title": [
+      "Message ",
+      "Queue"
+    ],
     "category": "Messaging",
     "summary": "Put a queue between producer and consumer to decouple them and absorb spikes instead of dropping work.",
     "question": "When a traffic spike outruns your consumer, why does synchronous calling lose work — and a queue not?",
@@ -205,11 +268,15 @@
       "It smooths load, enables retries and dead-letter queues for poison messages, and lets you scale consumers independently of producers.",
       "Decide the delivery and ordering semantics: most queues are at-least-once (so consumers must be idempotent), and strict ordering usually costs you parallelism.",
       "Treat queue depth as a first-class signal: a growing backlog means consumers can't keep up — alert on it, cap retention, and apply backpressure before the queue becomes an unbounded buffer."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "offline-first",
-    "title": ["Offline ", "First"],
+    "title": [
+      "Offline ",
+      "First"
+    ],
     "category": "Client",
     "summary": "Read and write a local store first, then sync to the server in the background — so the app keeps working on a flaky or absent network.",
     "question": "When the network drops mid-action, why does an online-only app lose the write — and how does offline-first keep it?",
@@ -218,11 +285,15 @@
       "Queue mutations durably in an outbox and flush them with background sync when connectivity returns; tag each with an idempotency key so a retried flush after a flaky connection can't apply the same change twice.",
       "Reconcile, don't clobber: concurrent edits across devices need a conflict strategy — last-write-wins is simplest, version vectors/CRDTs converge without a central lock — with the server as the source of truth on tie-breaks.",
       "Cache the app shell in a service worker so cold loads work offline too, surface clear sync state (pending / synced / conflict) in the UI, and bound the outbox and local cache so they can't grow without limit."
-    ]
+    ],
+    "added": "2026-05-31"
   },
   {
     "slug": "mobile-first",
-    "title": ["Mobile ", "First"],
+    "title": [
+      "Mobile ",
+      "First"
+    ],
     "category": "Client",
     "summary": "Design for the smallest, most constrained device first, then progressively enhance up to desktop — instead of cramming a desktop app onto a phone.",
     "question": "Why does designing desktop-first ship a heavy, broken experience to the phones that are most of your traffic?",
@@ -231,11 +302,15 @@
       "Performance is the feature on mobile: ship a small critical payload, lazy-load below-the-fold and heavy assets, defer non-critical JS, and honour Save-Data and reduced-motion — a desktop-first bundle that's fine on fibre stalls on 3G.",
       "Design for touch and viewport reality: ≥44px tap targets, fluid type and spacing with clamp(), safe-area insets, and min(…, 100%) sizing so a fixed-width track never forces horizontal scroll on a 360px screen.",
       "Keep layout fluid and content-driven: one source of truth that reflows across breakpoints beats separate m-dot and desktop sites, which double the work and drift out of sync."
-    ]
+    ],
+    "added": "2026-05-31"
   },
   {
     "slug": "kubernetes",
-    "title": ["", "Kubernetes"],
+    "title": [
+      "",
+      "Kubernetes"
+    ],
     "category": "Orchestration",
     "summary": "The design mistakes that take clusters down — missing limits, bad probes, single replicas — and how to avoid them.",
     "question": "Why do most Kubernetes outages trace back to how the workload was configured, not to a Kubernetes bug?",
@@ -244,11 +319,15 @@
       "Probes are misused everywhere: with no readiness probe the Service sends traffic to a pod that isn't warm; with no liveness probe a wedged process never restarts; and pointing all three at the same heavy endpoint creates restart loops. Gate traffic with readiness, restart with liveness, and protect slow boots with a startupProbe.",
       "A single replica — or replicas with no spread — is a self-inflicted SPOF: one node failure or a routine `drain` takes the whole service down. Run ≥3 replicas, spread them with topologySpreadConstraints/anti-affinity, and add a PodDisruptionBudget so an upgrade can't evict them all at once.",
       "Treating the control plane as free is the failure that scales worst: unbounded objects, giant ConfigMaps and chatty controllers melt the API server, and non-HA etcd makes the cluster's brain a SPOF. Run 3–5 control-plane/etcd nodes, set resource quotas and etcd size limits, and never put app data in etcd."
-    ]
+    ],
+    "added": "2026-05-31"
   },
   {
     "slug": "leader-election",
-    "title": ["Leader ", "Election"],
+    "title": [
+      "Leader ",
+      "Election"
+    ],
     "category": "Coordination",
     "summary": "Use a quorum to agree on a single leader so two nodes never both act as primary.",
     "question": "When a network hiccup makes two nodes both think they're primary, how do you avoid split-brain writes?",
@@ -257,11 +336,15 @@
       "Quorums are why cluster sizes are odd (3, 5): a minority partition can't reach majority, so it steps down rather than accept writes — no split brain, at the cost of availability on the minority side.",
       "Leaders hold a lease/term and must heartbeat; if followers miss heartbeats they start a new term and election, and fencing tokens stop a paused old leader from acting after it's replaced.",
       "It's the backbone of coordination systems (etcd, ZooKeeper, Consul) used for config, locks and service discovery — elect once, then route all writes through the leader."
-    ]
+    ],
+    "added": "2026-05-30"
   },
   {
     "slug": "distributed-tracing",
-    "title": ["Distributed ", "Tracing"],
+    "title": [
+      "Distributed ",
+      "Tracing"
+    ],
     "category": "Observability",
     "summary": "Stitch one request's hops across services into a single timeline so you can see where the latency actually goes.",
     "question": "A request touches six services and one is slow — with only per-service logs, how do you find which one?",
@@ -270,11 +353,15 @@
       "The span waterfall is where latency hides: sibling spans that overlap ran in parallel, a long bar with no children is the real culprit, and a gap between a parent and its first child is queueing or network you'd never spot per-service.",
       "Tracing every request is too expensive at scale, so sample — but decide head-sampling consistently for the whole trace, or better, tail-sample so you keep the slow and failed traces and drop the boring fast ones.",
       "A trace tells you where, not why: stamp the same trace ID onto your structured logs and metrics so one click pivots from the slow span to its logs — and remember an un-instrumented service or a dropped header leaves a blind hole in the tree."
-    ]
+    ],
+    "added": "2026-06-01"
   },
   {
     "slug": "canary",
-    "title": ["Canary ", "Deployment"],
+    "title": [
+      "Canary ",
+      "Deployment"
+    ],
     "category": "Delivery",
     "summary": "Send a new version a sliver of traffic first, watch its error rate, and ramp or roll back before it reaches everyone.",
     "question": "Why does a big-bang release take down 100% of users at once — and how does a canary cap the blast radius?",
@@ -283,11 +370,15 @@
       "Promote on evidence, not hope: compare the canary's golden signals (errors, latency, saturation) against the baseline and ramp 5 → 25 → 50 → 100 only while it stays healthy — automate the gate so a human isn't eyeballing dashboards.",
       "Rollback must be instant and safe: shifting traffic back is a routing change, not a redeploy — but it only works if the new version is backward-compatible with the database and the messages already in flight.",
       "A canary needs enough traffic and time to be statistically meaningful — 5% of a low-traffic service may never surface the bug — and watch for session affinity or caches that pin a user across the split."
-    ]
+    ],
+    "added": "2026-06-01"
   },
   {
     "slug": "backpressure",
-    "title": ["", "Backpressure"],
+    "title": [
+      "",
+      "Backpressure"
+    ],
     "category": "Resilience",
     "summary": "When a consumer can't keep up, push the slowdown upstream instead of letting an unbounded queue swallow memory and work.",
     "question": "A fast producer outruns a slow consumer — why does the queue between them become a time bomb, and how does backpressure defuse it?",
@@ -296,11 +387,15 @@
       "Backpressure makes the slowdown visible at the source — bound the queue and, when it fills, block the producer, reject with 429/503, or drop by priority, so the system degrades on purpose instead of by surprise.",
       "It propagates hop by hop: TCP flow control, reactive streams' request(n), and bounded thread pools all carry 'slow down' upstream until it reaches the true source — which may be a user you can legitimately make wait.",
       "Pick the policy per workload: block when work must not be lost and the producer can wait, shed when fresh data beats complete data (telemetry, live feeds), and always pair a bounded queue with a timeout so a stalled consumer can't pin a producer forever."
-    ]
+    ],
+    "added": "2026-06-01"
   },
   {
     "slug": "bulkhead",
-    "title": ["Bulkhead ", "Isolation"],
+    "title": [
+      "Bulkhead ",
+      "Isolation"
+    ],
     "category": "Resilience",
     "summary": "Give each dependency its own pool so one slow dependency can't drain every thread and sink the whole service.",
     "question": "One slow downstream hangs every request — how do separate pools keep checkout alive while search burns?",
@@ -309,11 +404,15 @@
       "Without it, one slow dependency is enough: every incoming request blocks a shared thread waiting on it, the pool exhausts, and calls that never even touch the slow dependency start failing too.",
       "Size each pool to the dependency's real capacity and fail fast when its pool is full — a saturated bulkhead should reject or fall back immediately, which is exactly where a circuit breaker and a timeout belong.",
       "Isolation has a cost: dedicated pools strand some capacity and add complexity, so bulkhead the things whose failure you can't afford to share — payments, auth, checkout — and let low-stakes features share."
-    ]
+    ],
+    "added": "2026-06-01"
   },
   {
     "slug": "outbox",
-    "title": ["Outbox ", "Pattern"],
+    "title": [
+      "Outbox ",
+      "Pattern"
+    ],
     "category": "Data",
     "summary": "Write the business row and its outgoing event in one transaction, then relay the event — so a crash can't lose it or fake it.",
     "question": "You commit the order to the database, then publish to Kafka — what happens to the event if the process dies in between?",
@@ -322,11 +421,15 @@
       "Fix it with one atomic write: insert the business row and an event row into an OUTBOX table in the same local transaction — either both land or neither does, so the event is durable the instant the business change is.",
       "A separate relay then reads the outbox and publishes to the broker, marking rows sent — by polling, or by change-data-capture tailing the log (Debezium); it retries until the broker acks, so delivery is at-least-once.",
       "At-least-once means duplicates are normal — the relay can publish then crash before marking the row sent — so consumers must dedupe on an idempotency key. The mirror image is the inbox: record processed message IDs to drop replays."
-    ]
+    ],
+    "added": "2026-06-01"
   },
   {
     "slug": "dead-letter-queue",
-    "title": ["Dead Letter ", "Queue"],
+    "title": [
+      "Dead Letter ",
+      "Queue"
+    ],
     "category": "Messaging",
     "summary": "Shunt a message that keeps failing into a side queue so one poison message can't block the whole pipeline forever.",
     "question": "A message at the head of the queue fails every retry — why does it freeze everything behind it, and where should it go?",
@@ -335,11 +438,15 @@
       "Cap the retries, then redirect: after N failed attempts move the message to a dead-letter queue so the main queue keeps draining; most brokers (SQS, RabbitMQ, a Kafka DLT topic) support this natively via a max-receive count.",
       "A DLQ is a diagnosis tool, not a graveyard: alert on its depth, keep the original message plus the failure reason and stack trace, and build a path to inspect, fix, and replay messages back onto the main queue.",
       "Separate transient from permanent failure first — a downstream timeout deserves retry with backoff, a schema violation never will — or you'll either dead-letter recoverable work or hammer a bug forever."
-    ]
+    ],
+    "added": "2026-06-01"
   },
   {
     "slug": "autoscaling",
-    "title": ["", "Autoscaling"],
+    "title": [
+      "",
+      "Autoscaling"
+    ],
     "category": "Scaling",
     "summary": "Add and remove replicas from a real demand signal — queue depth or concurrency, not just CPU — before saturation turns into dropped traffic.",
     "question": "Traffic triples at noon — why does a fixed fleet fall over, and what signal should decide when to add replicas?",
@@ -348,11 +455,15 @@
       "CPU is often the wrong trigger: an I/O-bound or queue-driven service saturates on connections, concurrency, or backlog while CPU still looks idle, so scale on the signal that actually reflects load — queue depth, in-flight requests, p99 latency.",
       "Scaling isn't instant: a new replica needs schedule + image pull + boot + warm-up, so scale out early and aggressively, scale in slowly, and add a cooldown window or the fleet flaps up and down chasing noise.",
       "Autoscaling can't fix a downstream bottleneck — more app pods just pile more load onto the one database — and it needs a ceiling and headroom, or a runaway scale-out becomes a self-inflicted cost spike or a thundering herd."
-    ]
+    ],
+    "added": "2026-06-01"
   },
   {
     "slug": "rag",
-    "title": ["", "RAG"],
+    "title": [
+      "",
+      "RAG"
+    ],
     "category": "AI Systems",
     "summary": "Ground the model in facts you retrieve at query time, instead of trusting whatever it memorized in training.",
     "question": "An LLM only knows its frozen training data — so how do you make it answer from your private, up-to-date docs?",
@@ -361,11 +472,15 @@
       "The pipeline is embed → retrieve → augment → generate: embed the question, fetch the top-k nearest chunks from a vector store, prepend them as context, and ask the model to answer from that context and cite it.",
       "Retrieval quality is the whole ballgame: chunk size, the embedding model, and the top-k cutoff decide what the model sees — missing or off-topic retrieval yields a confident wrong answer just like no RAG at all, so add a reranker and hybrid keyword+vector search when recall matters.",
       "RAG is cheaper and fresher than fine-tuning for knowledge that changes — re-index instead of retrain — but it spends context-window tokens on every call and can't teach new skills or style; use fine-tuning for behaviour, RAG for facts. The same retrieval keeps answers inside the context window and curbs hallucination."
-    ]
+    ],
+    "added": "2026-06-01"
   },
   {
     "slug": "ai-agents",
-    "title": ["AI ", "Agents"],
+    "title": [
+      "AI ",
+      "Agents"
+    ],
     "category": "AI Systems",
     "summary": "Wrap an LLM in a loop with tools so it can act — search, call APIs, run code — and work a multi-step task, not just talk.",
     "question": "A single model call can only produce text — so how does it actually book the flight, query the DB, or fix the bug?",
@@ -374,11 +489,15 @@
       "Tools are the agent's hands: each is a typed function (search, SQL, HTTP, code-exec) the model may call; the runtime executes it and feeds the result back. The model's job is choosing which tool and with what arguments, not doing the work itself.",
       "Autonomy is the risk: loops can run away (cap the steps and the spend), tool calls have side effects (sandbox them, confirm destructive ones), and errors compound across steps — so make tools idempotent and feed failures back as observations the agent can recover from.",
       "Most 'agent' needs are met by a fixed workflow with a couple of tool calls; reserve open-ended multi-step agents for genuinely dynamic tasks, and keep a human in the loop wherever a wrong action is expensive."
-    ]
+    ],
+    "added": "2026-06-01"
   },
   {
     "slug": "vector-db",
-    "title": ["Vector ", "Database"],
+    "title": [
+      "Vector ",
+      "Database"
+    ],
     "category": "AI Systems",
     "summary": "Search by meaning, not keywords: embed everything into vectors and find the nearest neighbours to a query.",
     "question": "When 'affordable laptop' should match 'cheap notebook', why does keyword search fail — and how does vector search find it?",
@@ -387,11 +506,15 @@
       "Exact nearest-neighbour search over millions of vectors is too slow, so vector DBs use approximate indexes (HNSW, IVF) that trade a little recall for a huge speed-up; you tune the recall-vs-latency knob per use case.",
       "Distance metric and embedding model have to match: cosine vs dot-product vs L2, and the same model for indexing and querying — mix them and the geometry is meaningless. Normalize, and re-embed everything when you change models.",
       "It's the retrieval engine behind RAG and semantic search, but it's not a system of record: pair vectors with metadata filters, keep the source text elsewhere, and remember that adopting a new embedding model means a full re-index."
-    ]
+    ],
+    "added": "2026-06-01"
   },
   {
     "slug": "hallucination",
-    "title": ["", "Hallucination"],
+    "title": [
+      "",
+      "Hallucination"
+    ],
     "category": "AI Systems",
     "summary": "LLMs state false things with total confidence; design for it with grounding, citations, and the option to say 'I don't know'.",
     "question": "The model gave a fluent, confident, completely wrong answer — why does that happen, and how do you contain it?",
@@ -400,11 +523,15 @@
       "You can't eliminate it, only contain it: ground answers in retrieved sources (RAG), require citations the user can check, and constrain the model to the provided context so 'not in the context' becomes 'I don't know' instead of a guess.",
       "Add verification for high-stakes output: validate against a schema or a tool/database, have a second pass cross-check, and prefer abstention — a refusal is far cheaper than a confident wrong answer in a medical, legal, or financial flow.",
       "Treat it as a product risk, not just a model bug: surface sources and confidence, make the failure mode visible to users, and track hallucination rate as a measured metric rather than assuming a bigger model fixed it."
-    ]
+    ],
+    "added": "2026-06-01"
   },
   {
     "slug": "context-window",
-    "title": ["Context ", "Window"],
+    "title": [
+      "Context ",
+      "Window"
+    ],
     "category": "AI Systems",
     "summary": "A model can only see a fixed budget of tokens at once; everything past it is truncated, so you must choose what to keep.",
     "question": "Your prompt plus history exceeds the token limit — what gets dropped, and how do you fit what matters?",
@@ -413,11 +540,15 @@
       "Bigger isn't a free fix: cost and latency scale with tokens, and models degrade in the middle of a long context ('lost in the middle') — a fact buried in 100K tokens gets less attention than the same fact in a tight prompt.",
       "Fit what matters instead of stuffing everything: retrieve only the relevant chunks (RAG), summarize or compress older history, and use a sliding window that evicts the least useful turns rather than the oldest by default.",
       "Budget the window like any scarce resource: reserve room for the response, count tokens before you send, and decide per feature what gets the space — system instructions, fresh context, or conversation history."
-    ]
+    ],
+    "added": "2026-06-01"
   },
   {
     "slug": "monitoring",
-    "title": ["", "Monitoring"],
+    "title": [
+      "",
+      "Monitoring"
+    ],
     "category": "Observability",
     "summary": "Metrics, traces, and logs answer what, where, and why — correlate all three or you're guessing.",
     "question": "A p99 spike fires an alert — metrics say it's slow, but how do you find where the time went and why?",
@@ -426,6 +557,7 @@
       "Correlation is what turns three tools into one workflow: stamp a shared trace/request ID across metric exemplars, spans, and structured logs so one click pivots spike → slow span → offending log line, instead of hand-matching timestamps across dashboards.",
       "Monitoring watches the failures you predicted (known dashboards, threshold alerts); observability lets you ask new questions about behaviour you didn't anticipate — high-cardinality, exemplar-linked telemetry is what makes an unforeseen root cause findable. You want both.",
       "Each pillar has a cost/retention trade-off: metrics are cheap and long-lived, traces should be tail-sampled (keep the slow and failed ones), and logs are the expensive firehose — structure them and sample the chatty paths, or telemetry becomes your biggest bill."
-    ]
+    ],
+    "added": "2026-06-01"
   }
 ]

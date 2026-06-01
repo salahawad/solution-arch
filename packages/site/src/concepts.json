@@ -14,6 +14,7 @@
       "Use virtual nodes (many ring points per physical node) to smooth out the uneven arc sizes and hot spots that a handful of real nodes would otherwise create.",
       "It underpins distributed caches (memcached / ketama client hashing), Dynamo-style databases (Cassandra, DynamoDB) and shard routers — anywhere membership changes and you can't afford to remap the world."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/consistent-hashing.js",
     "poster": "/animations/consistent-hashing.png"
   },
@@ -32,6 +33,7 @@
       "Health is the whole point: active probes plus passive outlier detection eject a bad node in seconds. Add slow-start so a cold instance isn't hit at full weight, and connection draining so deploys don't drop in-flight requests.",
       "Don't let the balancer become the single point of failure — run it redundantly behind a VIP/anycast or DNS failover, and keep N+1 capacity headroom so losing one node doesn't cascade into a retry storm."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/load-balancing.js",
     "poster": "/animations/load-balancing.png"
   },
@@ -50,6 +52,7 @@
       "Durability is tunable per topic: acks=all with min.insync.replicas trades latency for not losing writes, and replication factor 3 survives a broker loss. Decide this per topic, not globally.",
       "Kafka retains the log, so consumers own their offset — you get replay, backfill and dead-letter handling for free, but you must design for at-least-once delivery with idempotent consumers."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/kafka.js",
     "poster": "/animations/kafka.png"
   },
@@ -68,6 +71,7 @@
       "Memory is finite: set maxmemory with an eviction policy (allkeys-lru vs volatile-*), and watch for hot keys and big keys that skew a single shard.",
       "Make the durability/HA story explicit — RDB/AOF persistence, replicas with Sentinel or Cluster for failover — and remember a cache stampede on a cold restart can melt the database behind it."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/redis.js",
     "poster": "/animations/redis.png"
   },
@@ -86,6 +90,7 @@
       "Cross-shard joins and transactions are the real cost: denormalize, co-locate related data under the same key, and avoid distributed transactions wherever you can.",
       "Plan for rebalancing from day one — online split/move, a routing layer that can change the shard map without downtime, and backups that are consistent per shard."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/sharding.js",
     "poster": "/animations/sharding.png"
   },
@@ -104,6 +109,7 @@
       "Invalidation is the hard part: prefer immutable, content-hashed URLs over purges so a deploy is instant and atomic across every PoP.",
       "The CDN is also your first line of defense and edge compute: TLS termination, WAF, rate limiting and edge functions move work off the origin — but keep an origin-shield/failover path for cache misses."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/cdn.js",
     "poster": "/animations/cdn.png"
   },
@@ -122,6 +128,7 @@
       "Tune the trip threshold, window and probe count to the dependency: too sensitive and you shed load needlessly, too lax and the cascade happens before it opens.",
       "A breaker can't trip on a call that never returns, so pair it with timeouts, a fallback or cached response for the open state, and bulkheads so one slow dependency can't exhaust every thread."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/circuit-breaker.js",
     "poster": "/animations/circuit-breaker.png"
   },
@@ -140,6 +147,7 @@
       "Fail open or closed on purpose, and make rejection cheap: return 429 with Retry-After, shed load early, and never let the limiter itself become the bottleneck.",
       "Combine it with backpressure and graceful degradation: bound queue depth, prioritize critical traffic, and pair client retries with jittered exponential backoff to avoid synchronized retry storms."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/rate-limiting.js",
     "poster": "/animations/rate-limiting.png"
   },
@@ -158,6 +166,7 @@
       "Cap the attempts and the total deadline, and only retry idempotent operations — retrying a non-idempotent write is how you double-charge or duplicate work.",
       "Combine it with a circuit breaker and a retry budget (e.g. retries ≤ 10% of requests) so retries can't amplify load without bound during a partial outage."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/retry-backoff.js",
     "poster": "/animations/retry-backoff.png"
   },
@@ -176,6 +185,7 @@
       "Give keys a sensible TTL and scope (per endpoint, per user), and decide what an in-flight duplicate should do: return 409, wait, or replay the stored response.",
       "Idempotency keys make at-least-once delivery safe everywhere — payment APIs, webhook handlers, queue consumers — by turning unavoidable duplicates into harmless no-ops."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/idempotency.js",
     "poster": "/animations/idempotency.png"
   },
@@ -194,6 +204,7 @@
       "On primary loss, promote a replica. Automate failover carefully: fence the old primary and require a quorum to promote, or you risk split brain and lost writes.",
       "Replication scales reads, not writes — once writes are the bottleneck you need sharding. The two compose: shard for write scale, replicate each shard for read scale and HA."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/replication.js",
     "poster": "/animations/replication.png"
   },
@@ -212,6 +223,7 @@
       "Compensations are not rollbacks — intermediate states were visible, so design for it: reserve-then-confirm, idempotent compensations, and handle the already-shipped case.",
       "Sagas give you atomicity of outcome, not isolation: concurrent sagas can observe each other's partial state, so add semantic locks or versioning where that matters."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/saga.js",
     "poster": "/animations/saga.png"
   },
@@ -230,6 +242,7 @@
       "The fuller picture is PACELC: even with no partition you trade latency vs consistency — quorum reads with R + W > N are correct but slower than reading the nearest replica.",
       "AP systems push conflict resolution onto you: last-write-wins, vector clocks or CRDTs decide what happens when both sides accepted writes during the split."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/cap-theorem.js",
     "poster": "/animations/cap-theorem.png"
   },
@@ -248,6 +261,7 @@
       "Projections are eventually consistent and replayable: a new view is built by replaying history and a bug is fixed by reprojecting — but consumers must tolerate the lag.",
       "The costs are real: events are forever (schema versioning and upcasting matter), and you need snapshots so rebuilding a long-lived aggregate doesn't replay millions of events."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/event-sourcing.js",
     "poster": "/animations/event-sourcing.png"
   },
@@ -266,6 +280,7 @@
       "Keep it thin: routing, auth and policy belong here, but business logic does not — a gateway that grows domain logic becomes a new monolith and a deploy bottleneck.",
       "It's on the hot path for every request, so make it horizontally scalable and highly available and watch its added latency — it must not become the single point of failure it centralizes."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/api-gateway.js",
     "poster": "/animations/api-gateway.png"
   },
@@ -284,6 +299,7 @@
       "Decide the delivery and ordering semantics: most queues are at-least-once (so consumers must be idempotent), and strict ordering usually costs you parallelism.",
       "Treat queue depth as a first-class signal: a growing backlog means consumers can't keep up — alert on it, cap retention, and apply backpressure before the queue becomes an unbounded buffer."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/message-queue.js",
     "poster": "/animations/message-queue.png"
   },
@@ -302,6 +318,7 @@
       "Reconcile, don't clobber: concurrent edits across devices need a conflict strategy — last-write-wins is simplest, version vectors/CRDTs converge without a central lock — with the server as the source of truth on tie-breaks.",
       "Cache the app shell in a service worker so cold loads work offline too, surface clear sync state (pending / synced / conflict) in the UI, and bound the outbox and local cache so they can't grow without limit."
     ],
+    "added": "2026-05-31",
     "bundle": "/animations/offline-first.js",
     "poster": "/animations/offline-first.png"
   },
@@ -320,6 +337,7 @@
       "Design for touch and viewport reality: ≥44px tap targets, fluid type and spacing with clamp(), safe-area insets, and min(…, 100%) sizing so a fixed-width track never forces horizontal scroll on a 360px screen.",
       "Keep layout fluid and content-driven: one source of truth that reflows across breakpoints beats separate m-dot and desktop sites, which double the work and drift out of sync."
     ],
+    "added": "2026-05-31",
     "bundle": "/animations/mobile-first.js",
     "poster": "/animations/mobile-first.png"
   },
@@ -338,6 +356,7 @@
       "A single replica — or replicas with no spread — is a self-inflicted SPOF: one node failure or a routine `drain` takes the whole service down. Run ≥3 replicas, spread them with topologySpreadConstraints/anti-affinity, and add a PodDisruptionBudget so an upgrade can't evict them all at once.",
       "Treating the control plane as free is the failure that scales worst: unbounded objects, giant ConfigMaps and chatty controllers melt the API server, and non-HA etcd makes the cluster's brain a SPOF. Run 3–5 control-plane/etcd nodes, set resource quotas and etcd size limits, and never put app data in etcd."
     ],
+    "added": "2026-05-31",
     "bundle": "/animations/kubernetes.js",
     "poster": "/animations/kubernetes.png"
   },
@@ -356,6 +375,7 @@
       "Leaders hold a lease/term and must heartbeat; if followers miss heartbeats they start a new term and election, and fencing tokens stop a paused old leader from acting after it's replaced.",
       "It's the backbone of coordination systems (etcd, ZooKeeper, Consul) used for config, locks and service discovery — elect once, then route all writes through the leader."
     ],
+    "added": "2026-05-30",
     "bundle": "/animations/leader-election.js",
     "poster": "/animations/leader-election.png"
   },
@@ -374,6 +394,7 @@
       "Tracing every request is too expensive at scale, so sample — but decide head-sampling consistently for the whole trace, or better, tail-sample so you keep the slow and failed traces and drop the boring fast ones.",
       "A trace tells you where, not why: stamp the same trace ID onto your structured logs and metrics so one click pivots from the slow span to its logs — and remember an un-instrumented service or a dropped header leaves a blind hole in the tree."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/distributed-tracing.js",
     "poster": "/animations/distributed-tracing.png"
   },
@@ -392,6 +413,7 @@
       "Rollback must be instant and safe: shifting traffic back is a routing change, not a redeploy — but it only works if the new version is backward-compatible with the database and the messages already in flight.",
       "A canary needs enough traffic and time to be statistically meaningful — 5% of a low-traffic service may never surface the bug — and watch for session affinity or caches that pin a user across the split."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/canary.js",
     "poster": "/animations/canary.png"
   },
@@ -410,6 +432,7 @@
       "It propagates hop by hop: TCP flow control, reactive streams' request(n), and bounded thread pools all carry 'slow down' upstream until it reaches the true source — which may be a user you can legitimately make wait.",
       "Pick the policy per workload: block when work must not be lost and the producer can wait, shed when fresh data beats complete data (telemetry, live feeds), and always pair a bounded queue with a timeout so a stalled consumer can't pin a producer forever."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/backpressure.js",
     "poster": "/animations/backpressure.png"
   },
@@ -428,6 +451,7 @@
       "Size each pool to the dependency's real capacity and fail fast when its pool is full — a saturated bulkhead should reject or fall back immediately, which is exactly where a circuit breaker and a timeout belong.",
       "Isolation has a cost: dedicated pools strand some capacity and add complexity, so bulkhead the things whose failure you can't afford to share — payments, auth, checkout — and let low-stakes features share."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/bulkhead.js",
     "poster": "/animations/bulkhead.png"
   },
@@ -446,6 +470,7 @@
       "A separate relay then reads the outbox and publishes to the broker, marking rows sent — by polling, or by change-data-capture tailing the log (Debezium); it retries until the broker acks, so delivery is at-least-once.",
       "At-least-once means duplicates are normal — the relay can publish then crash before marking the row sent — so consumers must dedupe on an idempotency key. The mirror image is the inbox: record processed message IDs to drop replays."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/outbox.js",
     "poster": "/animations/outbox.png"
   },
@@ -464,6 +489,7 @@
       "A DLQ is a diagnosis tool, not a graveyard: alert on its depth, keep the original message plus the failure reason and stack trace, and build a path to inspect, fix, and replay messages back onto the main queue.",
       "Separate transient from permanent failure first — a downstream timeout deserves retry with backoff, a schema violation never will — or you'll either dead-letter recoverable work or hammer a bug forever."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/dead-letter-queue.js",
     "poster": "/animations/dead-letter-queue.png"
   },
@@ -482,6 +508,7 @@
       "Scaling isn't instant: a new replica needs schedule + image pull + boot + warm-up, so scale out early and aggressively, scale in slowly, and add a cooldown window or the fleet flaps up and down chasing noise.",
       "Autoscaling can't fix a downstream bottleneck — more app pods just pile more load onto the one database — and it needs a ceiling and headroom, or a runaway scale-out becomes a self-inflicted cost spike or a thundering herd."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/autoscaling.js",
     "poster": "/animations/autoscaling.png"
   },
@@ -500,6 +527,7 @@
       "Retrieval quality is the whole ballgame: chunk size, the embedding model, and the top-k cutoff decide what the model sees — missing or off-topic retrieval yields a confident wrong answer just like no RAG at all, so add a reranker and hybrid keyword+vector search when recall matters.",
       "RAG is cheaper and fresher than fine-tuning for knowledge that changes — re-index instead of retrain — but it spends context-window tokens on every call and can't teach new skills or style; use fine-tuning for behaviour, RAG for facts. The same retrieval keeps answers inside the context window and curbs hallucination."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/rag.js",
     "poster": "/animations/rag.png"
   },
@@ -518,6 +546,7 @@
       "Autonomy is the risk: loops can run away (cap the steps and the spend), tool calls have side effects (sandbox them, confirm destructive ones), and errors compound across steps — so make tools idempotent and feed failures back as observations the agent can recover from.",
       "Most 'agent' needs are met by a fixed workflow with a couple of tool calls; reserve open-ended multi-step agents for genuinely dynamic tasks, and keep a human in the loop wherever a wrong action is expensive."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/ai-agents.js",
     "poster": "/animations/ai-agents.png"
   },
@@ -536,6 +565,7 @@
       "Distance metric and embedding model have to match: cosine vs dot-product vs L2, and the same model for indexing and querying — mix them and the geometry is meaningless. Normalize, and re-embed everything when you change models.",
       "It's the retrieval engine behind RAG and semantic search, but it's not a system of record: pair vectors with metadata filters, keep the source text elsewhere, and remember that adopting a new embedding model means a full re-index."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/vector-db.js",
     "poster": "/animations/vector-db.png"
   },
@@ -554,6 +584,7 @@
       "Add verification for high-stakes output: validate against a schema or a tool/database, have a second pass cross-check, and prefer abstention — a refusal is far cheaper than a confident wrong answer in a medical, legal, or financial flow.",
       "Treat it as a product risk, not just a model bug: surface sources and confidence, make the failure mode visible to users, and track hallucination rate as a measured metric rather than assuming a bigger model fixed it."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/hallucination.js",
     "poster": "/animations/hallucination.png"
   },
@@ -572,6 +603,7 @@
       "Fit what matters instead of stuffing everything: retrieve only the relevant chunks (RAG), summarize or compress older history, and use a sliding window that evicts the least useful turns rather than the oldest by default.",
       "Budget the window like any scarce resource: reserve room for the response, count tokens before you send, and decide per feature what gets the space — system instructions, fresh context, or conversation history."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/context-window.js",
     "poster": "/animations/context-window.png"
   },
@@ -590,6 +622,7 @@
       "Monitoring watches the failures you predicted (known dashboards, threshold alerts); observability lets you ask new questions about behaviour you didn't anticipate — high-cardinality, exemplar-linked telemetry is what makes an unforeseen root cause findable. You want both.",
       "Each pillar has a cost/retention trade-off: metrics are cheap and long-lived, traces should be tail-sampled (keep the slow and failed ones), and logs are the expensive firehose — structure them and sample the chatty paths, or telemetry becomes your biggest bill."
     ],
+    "added": "2026-06-01",
     "bundle": "/animations/monitoring.js",
     "poster": "/animations/monitoring.png"
   }
