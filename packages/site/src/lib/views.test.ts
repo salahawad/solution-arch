@@ -30,6 +30,9 @@ describe("formatCount", () => {
     expect(formatCount(1000)).toBe("1k");
     expect(formatCount(1234)).toBe("1.2k");
     expect(formatCount(12345)).toBe("12k");
+    expect(formatCount(999999)).toBe("1m"); // rounds across the magnitude, not "1000k"
+    expect(formatCount(999500)).toBe("1m");
+    expect(formatCount(1000000)).toBe("1m");
     expect(formatCount(1500000)).toBe("1.5m");
   });
 });

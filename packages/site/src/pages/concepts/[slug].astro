@@ -203,8 +203,12 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
     const stage = document.getElementById("stage");
     const slug = stage?.dataset.slug;
     const countEl = document.getElementById("view-count");
+    let shownCount = 0; // monotonic: a late/cached /api/stats response can't regress a fresh post-play count
     function showCount(n: number) {
-      if (countEl && n > 0) { countEl.textContent = `${formatCount(n)} explored this`; countEl.hidden = false; }
+      if (!countEl || n <= shownCount) return;
+      shownCount = n;
+      countEl.textContent = `${formatCount(n)} views`;
+      countEl.hidden = false;
     }
 
     // initial social-proof count (also covers returning visitors who won't re-ping)
@@ -233,8 +237,12 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
     const toast = document.getElementById("toast");
     function flash(msg: string) {
       if (!toast) return;
-      toast.textContent = msg;
-      toast.hidden = false;
+      // clear then re-set next frame so a repeated identical message still announces (aria-live)
+      toast.textContent = "";
+      requestAnimationFrame(() => {
+        toast.textContent = msg;
+        toast.hidden = false;
+      });
       setTimeout(() => (toast.hidden = true), 2000);
     }
     btn?.addEventListener("click", async () => {

@@ -40,9 +40,9 @@ const groups = [
       <h2>Concept library</h2>
       <div class="rule"></div>
       <span class="mono" id="result-count" role="status" aria-live="polite" style="color:var(--muted-2);font-size:13px">{concepts.length} concepts</span>
-      <div class="explored" id="explored" hidden aria-live="polite">
+      <div class="explored" id="explored" hidden>
         <span class="explored-label mono"><span id="explored-n">0</span> / {concepts.length} explored</span>
-        <div class="explored-track"><div class="explored-fill" id="explored-fill"></div></div>
+        <div class="explored-track" id="explored-track" role="progressbar" aria-label="Concepts explored" aria-valuemin="0" aria-valuemax={concepts.length} aria-valuenow="0"><div class="explored-fill" id="explored-fill"></div></div>
       </div>
     </div>
 
@@ -173,7 +173,7 @@ const groups = [
     const dataEl = document.getElementById("sa-concepts");
     const concepts: Entry[] = dataEl ? JSON.parse(dataEl.textContent || "[]") : [];
     const slugs = concepts.map((c) => c.slug);
-    const cards = Array.from(document.querySelectorAll<HTMLElement>(".card[data-slug]"));
+    const cards = Array.from(document.querySelectorAll<HTMLElement>("#library-groups .card[data-slug]"));
 
     const prog = readProgress();
 
@@ -185,6 +185,7 @@ const groups = [
       const n = exploredCount(prog.seen, slugs);
       exploredN.textContent = String(n);
       exploredFill.style.width = Math.round((n / slugs.length) * 100) + "%";
+      document.getElementById("explored-track")?.setAttribute("aria-valuenow", String(n));
       exploredWrap.hidden = false;
     }
 
@@ -212,15 +213,17 @@ const groups = [
     }
     writeProgress({...prog, lastVisit: Date.now()});
 
-    // 4) today's concept — clone the matching library card into the hero slot
-    const today = new Date();
-    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    // 4) today's concept — clone the matching library card into the hero slot.
+    // UTC date (matches weekKey's basis) so the daily pick is the same for everyone.
+    const dateStr = new Date().toISOString().slice(0, 10);
     const pick = conceptOfTheDay(slugs, dateStr);
     const source = cards.find((c) => c.dataset.slug === pick);
     const slot = document.getElementById("today-slot");
     const todayWrap = document.getElementById("today");
     if (pick && source && slot && todayWrap) {
-      slot.appendChild(source.cloneNode(true));
+      const clone = source.cloneNode(true) as HTMLElement;
+      clone.setAttribute("aria-label", (clone.getAttribute("aria-label") || "") + " — today's concept");
+      slot.appendChild(clone);
       todayWrap.hidden = false;
     }
   </script>
@@ -231,24 +234,28 @@ const groups = [
     if (res && res.ok) {
       const {counts, trending} = await res.json();
 
-      // per-card "N explored" badge
-      document.querySelectorAll<HTMLElement>(".card[data-slug]").forEach((card) => {
+      // per-card "N views" badge (library grid only, so hero/trending clones aren't matched)
+      document.querySelectorAll<HTMLElement>("#library-groups .card[data-slug]").forEach((card) => {
         const n = counts[card.dataset.slug!];
         if (typeof n === "number" && n > 0) {
           const b = document.createElement("span");
           b.className = "views-badge mono";
-          b.textContent = `${formatCount(n)} explored`;
+          b.textContent = `${formatCount(n)} views`;
           card.appendChild(b);
         }
       });
 
-      // trending strip — clone the matching library cards in rank order
+      // trending strip — clone the canonical library card (never a hero clone) in rank order
       const wrap = document.getElementById("trending");
       const slot = document.getElementById("trending-slots");
       if (wrap && slot && Array.isArray(trending) && trending.length) {
         trending.forEach((slug: string) => {
-          const src = document.querySelector<HTMLElement>(`.card[data-slug="${slug}"]`);
-          if (src) slot.appendChild(src.cloneNode(true));
+          const src = document.querySelector<HTMLElement>(`#library-groups .card[data-slug="${slug}"]`);
+          if (src) {
+            const clone = src.cloneNode(true) as HTMLElement;
+            clone.setAttribute("aria-label", (clone.getAttribute("aria-label") || "") + " — trending");
+            slot.appendChild(clone);
+          }
         });
         if (slot.children.length) wrap.hidden = false;
       }

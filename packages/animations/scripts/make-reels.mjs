@@ -7,9 +7,10 @@
  *   node scripts/make-reels.mjs <slug>     # render one concept (verify loop)
  *
  * Render path: the frozen Motion Canvas 3.17 stack exposes no headless exporter, so we capture
- * frames from the LIVE player in headless Chromium (reusing the poster pipeline's server + page)
- * and stitch them with ffmpeg, bookended by branded intro/outro cards. Real-time screenshot
- * sampling is intentionally lossy (timing drifts a little); good enough for short social clips.
+ * frames from the LIVE player in headless Chromium and stitch them with ffmpeg, bookended by
+ * branded intro/outro cards. The asset server + player page + ink probe below MIRROR
+ * make-posters.mjs / frames.mjs (copied, not imported). Real-time screenshot sampling is
+ * intentionally lossy (timing drifts a little); good enough for short social clips.
  */
 import http from 'node:http';
 import fs from 'node:fs';
@@ -32,6 +33,9 @@ const HASHTAGS = '#systemdesign #softwarearchitecture #backend #coding #software
 
 const registry = JSON.parse(fs.readFileSync(path.join(ANIM, 'src/concepts/registry.json'), 'utf8'));
 
+/** Escape text interpolated into the card HTML so a <, > or & can't break the render. */
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
 // ---- captions -------------------------------------------------------------
 /** Build the postable caption from existing registry fields. */
 export function buildCaption(c) {
@@ -48,7 +52,7 @@ motion-canvas-player{width:1080px;height:1920px;display:block}</style>
 <script type="importmap">{"imports":{"@motion-canvas/core":"/animations/core.js"}}</script>
 <script type="module" src="/animations/player.js"></script>
 </head><body><div class="f">
-<motion-canvas-player src="/animations/${slug}.js" auto="true" quality="1" width="1080" height="1920"></motion-canvas-player>
+<motion-canvas-player src="/animations/${esc(slug)}.js" auto="true" quality="1" width="1080" height="1920"></motion-canvas-player>
 </div></body></html>`;
 
 function startServer() {
@@ -82,27 +86,38 @@ const INK = () => {
 
 async function captureFrames(browser, port, slug, framesDir, fps) {
   const page = await browser.newPage({viewport: {width: 1120, height: 1960}, deviceScaleFactor: 1});
-  await page.goto(`http://127.0.0.1:${port}/page/${slug}`, {waitUntil: 'load', timeout: 30000});
-  const el = page.locator('motion-canvas-player').first();
-  // warm up: wait until the canvas actually has content (or the warmup budget elapses)
-  const deadline = Date.now() + WARMUP_MS + 8000;
-  while (Date.now() < deadline) { if (await page.evaluate(INK) > 200) break; await page.waitForTimeout(150); }
-  await page.waitForTimeout(WARMUP_MS);
-  const step = Math.round(1000 / fps);
-  const count = Math.floor(BODY_MS / step);
-  for (let i = 0; i < count; i++) {
-    await el.screenshot({path: path.join(framesDir, `frame-${String(i + 1).padStart(5, '0')}.png`)});
-    await page.waitForTimeout(step);
+  try {
+    await page.goto(`http://127.0.0.1:${port}/page/${slug}`, {waitUntil: 'load', timeout: 30000});
+    const el = page.locator('motion-canvas-player').first();
+    // warm up: wait until the canvas actually paints. If it never does (404/blank bundle or an
+    // embed error), FAIL the concept instead of silently capturing a black reel — mirroring
+    // make-posters.mjs's MIN_INK gate.
+    let painted = false;
+    const deadline = Date.now() + WARMUP_MS + 8000;
+    while (Date.now() < deadline) {
+      if ((await page.evaluate(INK)) > 200) { painted = true; break; }
+      await page.waitForTimeout(150);
+    }
+    if (!painted) throw new Error('canvas never rendered — missing/blank bundle or embed error');
+    await page.waitForTimeout(WARMUP_MS);
+    const step = Math.round(1000 / fps);
+    const count = Math.floor(BODY_MS / step);
+    for (let i = 0; i < count; i++) {
+      await el.screenshot({path: path.join(framesDir, `frame-${String(i + 1).padStart(5, '0')}.png`)});
+      await page.waitForTimeout(step);
+    }
+    return count;
+  } finally {
+    await page.close();
   }
-  await page.close();
-  return count;
 }
 
 // ---- branded intro/outro cards (HTML -> PNG) ------------------------------
 const card = (kind, c) => {
-  const title = c.title.join('').trim();
   const eyebrow = kind === 'intro' ? c.category : 'solutionarch — link in bio';
   const body = kind === 'intro' ? c.question : 'Full interactive version, live in your browser';
+  const head = esc(c.title.slice(0, -1).join('')); // all title segments but the last
+  const tail = esc(c.title[c.title.length - 1] ?? ''); // last segment gets the accent
   return `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap">
 <style>
@@ -116,18 +131,21 @@ const card = (kind, c) => {
   .body{font-size:50px;line-height:1.4;color:#8593a6;margin:0}
 </style></head><body>
 <div class="card">
-  <span class="eyebrow">${eyebrow}</span>
-  <h1 class="title">${c.title[0]}<span class="accent">${c.title[1] ?? ''}</span></h1>
-  <p class="body">${body}</p>
+  <span class="eyebrow">${esc(eyebrow)}</span>
+  <h1 class="title">${head}<span class="accent">${tail}</span></h1>
+  <p class="body">${esc(body)}</p>
 </div></body></html>`;
 };
 
 async function renderCard(browser, kind, c, file) {
   const page = await browser.newPage({viewport: {width: 1080, height: 1920}, deviceScaleFactor: 1});
-  await page.setContent(card(kind, c), {waitUntil: 'networkidle'});
-  await page.waitForTimeout(300); // let webfonts paint
-  await page.screenshot({path: file});
-  await page.close();
+  try {
+    await page.setContent(card(kind, c), {waitUntil: 'networkidle'});
+    await page.waitForTimeout(300); // let webfonts paint
+    await page.screenshot({path: file});
+  } finally {
+    await page.close();
+  }
 }
 
 // ---- ffmpeg assembly ------------------------------------------------------
@@ -159,6 +177,11 @@ function assemble(slug, framesDir, introPng, outroPng, bodyCount, fps) {
 }
 
 // ---- main -----------------------------------------------------------------
+// Preflight: ffmpeg is a system binary, not an npm dep — fail fast and clearly if it's absent
+// rather than after launching Chromium and capturing frames.
+try { execSync('ffmpeg -version', {stdio: 'ignore'}); }
+catch { console.error('[reels] ffmpeg not found on PATH — install it (e.g. `apt install ffmpeg`) and retry.'); process.exit(1); }
+
 fs.mkdirSync(REELS, {recursive: true});
 const captions = Object.fromEntries(registry.map((c) => [c.slug, buildCaption(c)]));
 fs.writeFileSync(path.join(REELS, 'captions.json'), JSON.stringify(captions, null, 2));
@@ -169,33 +192,36 @@ const todo = ONLY ? registry.filter((c) => c.slug === ONLY) : registry;
 if (ONLY && !todo.length) { console.error(`[reels] no such concept: ${ONLY}`); process.exit(1); }
 
 const {chromium} = await import('playwright');
-const server = startServer();
-await new Promise((r) => server.listen(0, '127.0.0.1', r));
-const port = server.address().port;
-const browser = await chromium.launch({headless: true});
+let server, browser, ok = 0;
+try {
+  server = startServer();
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const port = server.address().port;
+  browser = await chromium.launch({headless: true});
 
-let ok = 0;
-for (const c of todo) {
-  const framesDir = path.join(REELS, `.frames-${c.slug}`);
-  fs.rmSync(framesDir, {recursive: true, force: true});
-  fs.mkdirSync(framesDir, {recursive: true});
-  try {
-    const intro = path.join(framesDir, 'intro.png');
-    const outro = path.join(framesDir, 'outro.png');
-    await renderCard(browser, 'intro', c, intro);
-    await renderCard(browser, 'outro', c, outro);
-    const bodyCount = await captureFrames(browser, port, c.slug, framesDir, FPS);
-    const out = assemble(c.slug, framesDir, intro, outro, bodyCount, FPS);
-    const kb = Math.round(fs.statSync(out).size / 1024);
-    console.log(`[reels] ${c.slug} ✓ ${out} (${kb} KB, ${bodyCount} body frames)`);
-    ok++;
-  } catch (e) {
-    console.error(`[reels] ${c.slug} ✗ ${String(e).slice(0, 200)}`);
-  } finally {
+  for (const c of todo) {
+    const framesDir = path.join(REELS, `.frames-${c.slug}`);
     fs.rmSync(framesDir, {recursive: true, force: true});
+    fs.mkdirSync(framesDir, {recursive: true});
+    try {
+      const intro = path.join(framesDir, 'intro.png');
+      const outro = path.join(framesDir, 'outro.png');
+      await renderCard(browser, 'intro', c, intro);
+      await renderCard(browser, 'outro', c, outro);
+      const bodyCount = await captureFrames(browser, port, c.slug, framesDir, FPS);
+      const out = assemble(c.slug, framesDir, intro, outro, bodyCount, FPS);
+      const kb = Math.round(fs.statSync(out).size / 1024);
+      console.log(`[reels] ${c.slug} ✓ ${out} (${kb} KB, ${bodyCount} body frames)`);
+      ok++;
+    } catch (e) {
+      console.error(`[reels] ${c.slug} ✗ ${String(e).slice(0, 200)}`);
+    } finally {
+      fs.rmSync(framesDir, {recursive: true, force: true});
+    }
   }
+} finally {
+  if (browser) await browser.close();
+  if (server) server.close();
 }
-await browser.close();
-server.close();
 console.log(`[reels] ${ok}/${todo.length} reel(s) rendered -> reels/`);
 process.exit(ok === todo.length ? 0 : 1);

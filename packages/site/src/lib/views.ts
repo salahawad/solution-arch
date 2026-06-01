@@ -30,7 +30,10 @@ export function weekKey(now: number): string {
 /** Compact human count: 950 -> "950", 1234 -> "1.2k", 1500000 -> "1.5m". */
 export function formatCount(n: number): string {
   if (n < 1000) return String(n);
-  if (n < 1_000_000) return (n / 1000).toFixed(n < 10_000 ? 1 : 0).replace(/\.0$/, "") + "k";
+  if (n < 1_000_000) {
+    const k = (n / 1000).toFixed(n < 10_000 ? 1 : 0).replace(/\.0$/, "");
+    if (k !== "1000") return k + "k"; // 999_500..999_999 round to "1000k" → roll over to "1m"
+  }
   return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "m";
 }
 
@@ -66,9 +69,6 @@ export class InMemoryViewStore implements ViewStore {
     return [...w.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([s]) => s);
   }
 }
-
-/** Shared in-memory fallback used by the API routes when Upstash is unconfigured (dev). */
-export const memViewStore = new InMemoryViewStore();
 
 const TRENDING_N = 5;
 

@@ -1,8 +1,8 @@
 // The ONLY module that imports @upstash/redis. Exposes a shared client (null when env is
 // absent) plus Upstash-backed implementations of the PresenceStore and ViewStore interfaces.
 import {Redis} from "@upstash/redis";
-import type {PresenceStore} from "./presence";
-import {type ViewStore, viewKey, weekKey} from "./views";
+import {type PresenceStore, InMemoryPresenceStore} from "./presence";
+import {type ViewStore, viewKey, weekKey, InMemoryViewStore} from "./views";
 
 let client: Redis | null | undefined; // undefined = unresolved; null = unconfigured
 
@@ -36,10 +36,12 @@ export class UpstashPresenceStore implements PresenceStore {
 export class UpstashViewStore implements ViewStore {
   constructor(private readonly redis: Redis) {}
   async increment(slug: string, now: number): Promise<number> {
+    const wk = weekKey(now);
     const tx = this.redis.multi();
     tx.incr(viewKey(slug));
-    tx.zincrby(weekKey(now), 1, slug);
-    const res = (await tx.exec()) as [number, unknown];
+    tx.zincrby(wk, 1, slug);
+    tx.expire(wk, 60 * 60 * 24 * 21); // self-expire old weekly trending sets (~3 weeks)
+    const res = (await tx.exec()) as [number, unknown, unknown];
     return res[0];
   }
   async counts(slugs: string[]): Promise<Record<string, number>> {
@@ -56,4 +58,26 @@ export class UpstashViewStore implements ViewStore {
     const res = await this.redis.zrange<string[]>(weekKey(now), 0, n - 1, {rev: true});
     return res ?? [];
   }
+}
+
+// Dev-only in-memory singletons: in `astro dev` (one process) these give a real, shared
+// count; in production with NO Upstash env the factories return null so the route hides the
+// affected UI instead of showing misleading per-instance counts that reset on every cold start.
+let devPresence: InMemoryPresenceStore | undefined;
+let devView: InMemoryViewStore | undefined;
+
+/** Presence store for a route: Upstash when configured, in-memory in dev, else null. */
+export function getPresenceStore(): PresenceStore | null {
+  const redis = getRedis();
+  if (redis) return new UpstashPresenceStore(redis);
+  if (import.meta.env.DEV) return (devPresence ??= new InMemoryPresenceStore());
+  return null;
+}
+
+/** View store for a route: Upstash when configured, in-memory in dev, else null. */
+export function getViewStore(): ViewStore | null {
+  const redis = getRedis();
+  if (redis) return new UpstashViewStore(redis);
+  if (import.meta.env.DEV) return (devView ??= new InMemoryViewStore());
+  return null;
 }

@@ -380,8 +380,7 @@ img { display: block; max-width: 100%; }
   border-radius: 999px; font-weight: 700;
 }
 
-/* new badge on cards + banner */
-.card { position: relative; } /* anchor for pills/ticks if not already positioned */
+/* new badge on cards + banner (.card is already position:relative in the base rule above) */
 .new-pill {
   position: absolute; top: 10px; right: 10px; z-index: 2;
   padding: 2px 7px; font-size: 10px; font-weight: 700; letter-spacing: .06em;
