@@ -31,6 +31,7 @@ export default makeScene2D(function* (view) {
   const pE1 = {line: createRef<Line>(), dot: createRef<Circle>()};
   const pE2 = {line: createRef<Line>(), dot: createRef<Circle>()};
   const pWarn = createRef<Node>();
+  const pFab = createRef<Txt>();
   const pStats = createRef<Layout>();
 
   // SOLUTION — retrieve sources, cite them, and allow abstaining
@@ -75,7 +76,7 @@ export default makeScene2D(function* (view) {
       </Node>
 
       <GlowNode ref={pAns} label="false" labelColor={C.text} accent={C.coral} width={210} height={92} fontSize={28} position={[385, -440]} />
-      <Txt text="fabricated" fill={C.coral} fontFamily={F.mono} fontSize={22} position={[385, -362]} />
+      <Txt ref={pFab} text="fabricated" fill={C.coral} fontFamily={F.mono} fontSize={22} position={[385, -362]} />
 
       <StatRow ref={pStats} position={[0, -160]} gap={22}>
         <StatCard label="CONFIDENCE" value="high" accent={C.coral} width={300} />
@@ -98,8 +99,8 @@ export default makeScene2D(function* (view) {
       </Layout>
 
       {/* SOURCES feed the LLM (retrieved grounding) */}
-      <DbNode ref={sSrc} label="SOURCES" sub="retrieved" accent={C.teal} width={170} height={150} position={[120, 300]} />
-      <FlowEdge lineRef={sE2.line} dotRef={sE2.dot} from={[120, 225]} to={[-50, 340]} color={C.teal} />
+      <DbNode ref={sSrc} label="SOURCES" sub="retrieved" accent={C.teal} width={170} height={200} position={[120, 290]} />
+      <FlowEdge lineRef={sE2.line} dotRef={sE2.dot} from={[120, 190]} to={[-50, 340]} color={C.teal} />
 
       {/* LLM -> grounded answer */}
       <FlowEdge lineRef={sE3.line} dotRef={sE3.dot} from={[-45, 360]} to={[290, 360]} color={C.teal} />
@@ -122,7 +123,7 @@ export default makeScene2D(function* (view) {
   for (const r of [pUser, pLlm, pAns, sUser, sLlm, sAns]) r().scale(0);
   sSrc().scale(0);
   pWarn().scale(0).opacity(0);
-  for (const r of [pQ]) r().opacity(0);
+  for (const r of [pQ, pFab]) r().opacity(0);
   sCite().opacity(0).scale(0.8);
   sAbstain().opacity(0).scale(0.8);
 
@@ -144,7 +145,7 @@ export default makeScene2D(function* (view) {
   pE2.dot().position([95, -440]).opacity(1);
   yield* pE2.dot().position([280, -440], 0.35);
   pE2.dot().opacity(0);
-  yield* all(pWarn().scale(1, 0.5, easeOutBack), pWarn().opacity(1, 0.4));
+  yield* all(pWarn().scale(1, 0.5, easeOutBack), pWarn().opacity(1, 0.4), pFab().opacity(1, 0.4));
   yield* pStats().opacity(1, 0.4);
   yield* waitFor(0.8);
 
@@ -159,7 +160,7 @@ export default makeScene2D(function* (view) {
   // sources appear and feed grounding into the LLM
   yield* sSrc().scale(1, 0.5, easeOutBack);
   yield* sE2.line().end(1, 0.3);
-  sE2.dot().position([120, 225]).opacity(1);
+  sE2.dot().position([120, 190]).opacity(1);
   yield* sE2.dot().position([-50, 340], 0.35);
   sE2.dot().opacity(0);
 

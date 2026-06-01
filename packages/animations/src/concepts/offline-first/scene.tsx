@@ -61,6 +61,7 @@ export default makeScene2D(function* (view) {
   const d2 = createRef<Circle>();
   const e3 = createRef<Line>();
   const d3 = createRef<Circle>();
+  const sConn = createRef<Node>();
   const sStats = createRef<Layout>();
 
   // ---- metric / state signals -----------------------------------------
@@ -125,7 +126,7 @@ export default makeScene2D(function* (view) {
 
       {/* APP -> LOCAL store (instant, always available) */}
       <FlowEdge lineRef={e1} dotRef={d1} from={[-355, 360]} to={[-265, 360]} color={C.teal} />
-      <DbNode ref={sLocal} label="LOCAL" sub="IndexedDB" accent={C.teal} width={150} height={170} position={[-185, 360]} />
+      <DbNode ref={sLocal} label="LOCAL" sub="IndexedDB" accent={C.teal} width={150} height={196} position={[-185, 360]} />
 
       {/* LOCAL -> OUTBOX (durable queue of pending mutations) */}
       <FlowEdge lineRef={e2} dotRef={d2} from={[-105, 360]} to={[-5, 360]} color={C.teal} />
@@ -136,7 +137,7 @@ export default makeScene2D(function* (view) {
       <GlowNode ref={sServer} label="SERVER" accent={C.muted} width={170} height={104} position={[395, 360]} />
 
       {/* connectivity status sitting over the sync link */}
-      <Node position={[210, 290]}>
+      <Node ref={sConn} position={[210, 290]}>
         <Circle size={14} fill={connColor} shadowColor={connColor} shadowBlur={12} x={-66} />
         <Txt text={connLabel} fill={connColor} fontFamily={F.mono} fontSize={22} letterSpacing={2} x={12} />
       </Node>
@@ -155,6 +156,7 @@ export default makeScene2D(function* (view) {
   for (const r of [pApp, pServer, sApp, sOutbox, sServer]) r().scale(0);
   sLocal().scale(0);
   pX().scale(0).opacity(0);
+  sConn().opacity(0);
 
   // ---- choreography ----------------------------------------------------
   yield* title().opacity(1, 0.6);
@@ -191,6 +193,7 @@ export default makeScene2D(function* (view) {
   );
   yield* sStats().opacity(1, 0.4);
   yield* all(e1().end(1, 0.3), e2().end(1, 0.3), e3().end(1, 0.3));
+  yield* sConn().opacity(1, 0.3);
 
   // --- OFFLINE: every write lands in local instantly and queues in the outbox ---
   connLabel('OFFLINE');

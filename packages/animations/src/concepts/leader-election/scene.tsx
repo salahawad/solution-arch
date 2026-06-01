@@ -136,7 +136,7 @@ export default makeScene2D(function* (view) {
 
       <StatRow ref={pStats} position={[0, -180]} gap={22}>
         <StatCard label="LEADERS" value={() => `${Math.round(pLeaders())}`} accent={C.coral} width={300} />
-        <StatCard label="STATE" value="SPLIT-BRAIN" accent={C.coral} width={300} />
+        <StatCard label="STATE" value="SPLIT" accent={C.coral} width={300} />
         <StatCard label="WRITES" value="conflict" accent={C.coral} width={300} />
       </StatRow>
 

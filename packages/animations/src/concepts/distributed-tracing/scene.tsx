@@ -59,6 +59,7 @@ export default makeScene2D(function* (view) {
     ['cache', 1780, 110, false],
   ];
   const barRefs = spans.map(() => createRef<Rect>());
+  const rowRefs = spans.map(() => createRef<Node>());
   const wfTop = 250;
   const wfGap = 68;
 
@@ -116,7 +117,7 @@ export default makeScene2D(function* (view) {
         const y = wfTop + i * wfGap;
         const secs = (durMs / 1000).toFixed(durMs >= 1000 ? 1 : 2);
         return (
-          <Node>
+          <Node ref={rowRefs[i]}>
             <Txt text={label} fill={slow ? C.coral : C.muted} fontFamily={F.mono} fontSize={22} textAlign="right" position={[baseX - 24, y]} offset={[1, 0]} />
             <Rect
               ref={barRefs[i]}
@@ -138,7 +139,7 @@ export default makeScene2D(function* (view) {
 
       <StatRow ref={sStats} position={[0, 700]} gap={22}>
         <StatCard label="TRACE-ID" value="a3f9c1" accent={C.teal} width={300} />
-        <StatCard label="SLOW SPAN" value="payments-db" accent={C.coral} width={300} />
+        <StatCard label="SLOW SPAN" value="pay-db" accent={C.coral} width={300} />
         <StatCard label="ROOT CAUSE" value="found" accent={C.teal} width={300} />
       </StatRow>
     </>,
@@ -151,6 +152,7 @@ export default makeScene2D(function* (view) {
   pQ().scale(0).opacity(0);
   traceId().opacity(0).scale(0.8);
   axis().opacity(0);
+  for (const r of rowRefs) r().opacity(0);
   for (const b of barRefs) b().width(0).opacity(0);
 
   // ---- choreography ----------------------------------------------------
@@ -185,6 +187,7 @@ export default makeScene2D(function* (view) {
     const [, , durMs, slow] = spans[i];
     const w = durMs * scale;
     barRefs[i]().opacity(1);
+    rowRefs[i]().opacity(1);
     yield* barRefs[i]().width(w, slow ? 0.7 : 0.35, easeOutCubic);
   }
 

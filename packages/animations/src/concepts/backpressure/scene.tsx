@@ -77,10 +77,10 @@ export default makeScene2D(function* (view) {
 
       {/* overflow tokens spilling out above the rim (bucket top is at y = -100 relative to center) */}
       <Node ref={pOver} position={[40, -400]}>
-        <Circle width={36} height={36} fill={C.coral} shadowColor={C.coral} shadowBlur={12} position={[-34, -132]} />
-        <Circle width={36} height={36} fill={C.coral} shadowColor={C.coral} shadowBlur={12} position={[8, -160]} />
-        <Circle width={36} height={36} fill={C.coral} shadowColor={C.coral} shadowBlur={12} position={[-20, -192]} />
-        <Txt text="OVERFLOW" fill={C.coral} fontFamily={F.mono} fontWeight={700} fontSize={20} letterSpacing={2} position={[0, -226]} />
+        <Circle width={36} height={36} fill={C.coral} shadowColor={C.coral} shadowBlur={12} position={[-34, -120]} />
+        <Circle width={36} height={36} fill={C.coral} shadowColor={C.coral} shadowBlur={12} position={[8, -146]} />
+        <Circle width={36} height={36} fill={C.coral} shadowColor={C.coral} shadowBlur={12} position={[-20, -172]} />
+        <Txt text="OVERFLOW" fill={C.coral} fontFamily={F.mono} fontWeight={700} fontSize={20} letterSpacing={2} position={[0, -204]} />
       </Node>
 
       {/* QUEUE -> CONSUMER (slow) */}
@@ -113,7 +113,7 @@ export default makeScene2D(function* (view) {
       {/* the back-pressure signal — a coral line above the path, from queue back to the producer */}
       <Line ref={backLine} points={[[40, 250], [40, 230], [-380, 230], [-380, 290]]} radius={20} stroke={C.coral} lineWidth={4} opacity={0.9} lineDash={[6, 10]} endArrow arrowSize={16} end={0} />
       <Circle ref={backDot} size={16} fill={C.coral} shadowColor={C.coral} shadowBlur={14} position={[40, 230]} opacity={0} />
-      <Layout ref={slowTag} layout padding={[8, 22]} radius={999} fill={`${C.coral}22`} stroke={C.coral} lineWidth={2} position={[-170, 230]}>
+      <Layout ref={slowTag} layout padding={[8, 22]} radius={999} fill={`${C.coral}22`} stroke={C.coral} lineWidth={2} position={[-170, 185]}>
         <Txt text="SLOW DOWN" fill={C.coral} fontFamily={F.mono} fontWeight={700} fontSize={22} letterSpacing={2} />
       </Layout>
 

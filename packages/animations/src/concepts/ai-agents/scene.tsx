@@ -82,10 +82,12 @@ export default makeScene2D(function* (view) {
       {/* ============ SOLUTION — agent loop with tools ============ */}
       <SectionPill ref={sPill} variant="solution" label="AGENT LOOP" note="reason, call a tool, observe, repeat — until the task is done" position={[-10, 70]} />
 
-      {/* the loop arrow returning into the agent (think -> act -> observe) */}
+      {/* the loop arrow returning into the agent (think -> act -> observe) —
+          bows out to the LEFT of the agent and lands its arrowhead on the
+          agent's left edge (x=-155), never piercing the box */}
       <Line
         ref={sLoop}
-        points={[[-40, 320], [-210, 326], [-268, 390], [-210, 454], [-40, 460]]}
+        points={[[-155, 340], [-300, 346], [-358, 390], [-300, 434], [-160, 440]]}
         stroke={C.amber}
         lineWidth={4}
         shadowColor={C.amber}
@@ -94,7 +96,7 @@ export default makeScene2D(function* (view) {
         arrowSize={15}
         end={0}
       />
-      <Txt ref={sLoopLabel} text="loop" fill={C.amber} fontFamily={F.mono} fontSize={22} letterSpacing={2} position={[-300, 390]} />
+      <Txt ref={sLoopLabel} text="loop" fill={C.amber} fontFamily={F.mono} fontSize={22} letterSpacing={2} position={[-415, 390]} />
 
       <GlowNode ref={sAgent} label="AGENT" accent={C.teal} width={230} height={130} fontSize={34} position={[-40, 390]} />
 

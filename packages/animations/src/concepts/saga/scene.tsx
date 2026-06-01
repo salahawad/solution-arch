@@ -58,6 +58,7 @@ export default makeScene2D(function* (view) {
   const sFwdDot = [createRef<Circle>(), createRef<Circle>()];
   const sCompLine = [createRef<Line>(), createRef<Line>()];
   const sCompDot = [createRef<Circle>(), createRef<Circle>()];
+  const sCompLabels = createRef<Node>();
   const sFail = createRef<Node>();
   const sConsistent = createRef<Layout>();
 
@@ -156,8 +157,10 @@ export default makeScene2D(function* (view) {
       <FlowEdge lineRef={sCompLine[0]} dotRef={sCompDot[0]} from={[stepX[2] - stepW / 2, sStepY + 78]} to={[stepX[1] + stepW / 2, sStepY + 78]} color={C.coral} />
       <FlowEdge lineRef={sCompLine[1]} dotRef={sCompDot[1]} from={[stepX[1] - stepW / 2, sStepY + 78]} to={[stepX[0] + stepW / 2, sStepY + 78]} color={C.coral} />
 
-      <Txt text="restock" fill={C.coral} fontFamily={F.mono} fontSize={22} position={[(stepX[1] + stepX[2]) / 2, sStepY + 110]} />
-      <Txt text="refund" fill={C.coral} fontFamily={F.mono} fontSize={22} position={[(stepX[0] + stepX[1]) / 2, sStepY + 110]} />
+      <Node ref={sCompLabels}>
+        <Txt text="restock" fill={C.coral} fontFamily={F.mono} fontSize={22} position={[(stepX[1] + stepX[2]) / 2, sStepY + 110]} />
+        <Txt text="refund" fill={C.coral} fontFamily={F.mono} fontSize={22} position={[(stepX[0] + stepX[1]) / 2, sStepY + 110]} />
+      </Node>
 
       {/* consistent banner */}
       <Layout ref={sConsistent} layout direction="row" alignItems="center" gap={14} position={[0, sStepY + 178]}>
@@ -177,7 +180,7 @@ export default makeScene2D(function* (view) {
 
   // ---- initial hidden states ------------------------------------------
   title().opacity(0);
-  for (const r of [pPill, pStats, pInconsistent, sPill, sStats, sConsistent]) r().opacity(0);
+  for (const r of [pPill, pStats, pInconsistent, sPill, sStats, sConsistent, sCompLabels]) r().opacity(0);
   for (const r of [...pStep, ...sStep]) r().scale(0);
   for (const r of [...pBadge, pBoom, sFail]) r().opacity(0);
   pBoom().scale(0);
@@ -238,6 +241,7 @@ export default makeScene2D(function* (view) {
 
   // reverse: restock (3 -> 2), then refund (2 -> 1)
   sStep[2]().stroke(C.coral);
+  yield* sCompLabels().opacity(1, 0.3);
   yield* sCompLine[0]().end(1, 0.3);
   sCompDot[0]().position([stepX[2] - stepW / 2, sStepY + 78]).opacity(1);
   yield* sCompDot[0]().position([stepX[1] + stepW / 2, sStepY + 78], 0.45, easeOutCubic);

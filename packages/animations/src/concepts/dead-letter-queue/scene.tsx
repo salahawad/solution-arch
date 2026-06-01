@@ -30,6 +30,7 @@ export default makeScene2D(function* (view) {
   const pTiles = [createRef<Rect>(), createRef<Rect>(), createRef<Rect>(), createRef<Rect>(), createRef<Rect>(), createRef<Rect>()];
   const pConsumer = createRef<Rect>();
   const pEdge = {line: createRef<Line>(), dot: createRef<Circle>()};
+  const pRetryLabel = createRef<Txt>();
   const pStats = createRef<Layout>();
 
   // SOLUTION — after N retries, shunt the poison aside; the main queue drains
@@ -105,7 +106,7 @@ export default makeScene2D(function* (view) {
       <FlowEdge lineRef={pEdge.line} dotRef={pEdge.dot} from={[pHeadX + tile / 2 + 6, pY]} to={[pConsumerPos[0] - 90, pY]} color={C.coral} />
 
       {/* retry counter floating above the head tile */}
-      <Txt text={pRetry} fill={C.coral} fontFamily={F.mono} fontSize={26} fontWeight={700} letterSpacing={1} position={[pHeadX, pY - 64]} />
+      <Txt ref={pRetryLabel} text={pRetry} fill={C.coral} fontFamily={F.mono} fontSize={26} fontWeight={700} letterSpacing={1} position={[pHeadX, pY - 64]} />
 
       <GlowNode ref={pConsumer} label="CONSUMER" accent={C.teal} width={170} height={96} fontSize={24} position={pConsumerPos} />
 
@@ -144,7 +145,7 @@ export default makeScene2D(function* (view) {
 
   // ---- initial hidden states ------------------------------------------
   title().opacity(0);
-  for (const r of [pPill, pStats, sPill, sStats]) r().opacity(0);
+  for (const r of [pPill, pRetryLabel, pStats, sPill, sStats]) r().opacity(0);
   for (const r of [...pTiles, pConsumer, ...sTiles, sConsumer, sDlq]) r().scale(0);
   pEdge.line().end(0);
   sFlow.line().end(0);
@@ -160,7 +161,7 @@ export default makeScene2D(function* (view) {
     pConsumer().scale(1, 0.5, easeOutBack),
   );
   yield* pEdge.line().end(1, 0.3);
-  yield* pStats().opacity(1, 0.4);
+  yield* all(pStats().opacity(1, 0.4), pRetryLabel().opacity(1, 0.4));
 
   // the head tile retries forever: the dot bounces head -> consumer -> back, counter climbs.
   // nothing advances — the rest of the queue stays put behind the poison message.

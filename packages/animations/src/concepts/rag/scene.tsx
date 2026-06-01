@@ -44,6 +44,7 @@ export default makeScene2D(function* (view) {
   const sE1 = {line: createRef<Line>(), dot: createRef<Circle>()};
   const sE2 = {line: createRef<Line>(), dot: createRef<Circle>()};
   const sE3 = {line: createRef<Line>(), dot: createRef<Circle>()};
+  const sAnsEdge = createRef<Line>();
   const sCtxLabel = createRef<Txt>();
   const sCite = createRef<Layout>();
   const sStats = createRef<Layout>();
@@ -85,10 +86,10 @@ export default makeScene2D(function* (view) {
       <SectionPill ref={sPill} variant="solution" label="RAG" note="retrieve the top-k docs, then answer from that context — with citations" position={[-10, 70]} />
 
       <GlowNode ref={sUser} label="USER" accent={C.teal} width={160} height={84} fontSize={26} position={[-440, 360]} />
-      <FlowEdge lineRef={sE1.line} dotRef={sE1.dot} from={[-360, 360]} to={[-300, 360]} color={C.teal} />
+      <FlowEdge lineRef={sE1.line} dotRef={sE1.dot} from={[-360, 360]} to={[-310, 360]} color={C.teal} />
 
       {/* knowledge base / vector store */}
-      <DbNode ref={sKb} label="KB" sub="vector store" accent={C.teal} width={150} height={150} position={[-225, 360]} />
+      <DbNode ref={sKb} label="KB" sub="vector store" accent={C.teal} width={170} height={200} position={[-225, 360]} />
 
       {/* retrieved top-k context chunks */}
       <Txt ref={sCtxLabel} text="top-k context" fill={C.muted} fontFamily={F.mono} fontSize={20} letterSpacing={1} position={[-50, 250]} />
@@ -98,12 +99,12 @@ export default makeScene2D(function* (view) {
         </Rect>
       ))}
       {/* KB feeds the context, context feeds the LLM */}
-      <FlowEdge lineRef={sE2.line} dotRef={sE2.dot} from={[-150, 360]} to={[-130, 360]} color={C.teal} />
+      <FlowEdge lineRef={sE2.line} dotRef={sE2.dot} from={[-140, 360]} to={[-125, 360]} color={C.teal} />
       <FlowEdge lineRef={sE3.line} dotRef={sE3.dot} from={[30, 360]} to={[120, 360]} color={C.teal} />
 
       <GlowNode ref={sLlm} label="LLM" accent={C.teal} width={150} height={110} fontSize={30} position={[210, 360]} />
 
-      <Line points={[[285, 360], [330, 360]]} stroke={C.teal} lineWidth={3} opacity={0.5} lineDash={[2, 12]} endArrow arrowSize={12} />
+      <Line ref={sAnsEdge} points={[[285, 360], [330, 360]]} stroke={C.teal} lineWidth={3} opacity={0.5} lineDash={[2, 12]} endArrow arrowSize={12} />
       <GlowNode ref={sAns} label="ANSWER" accent={C.teal} labelColor={C.text} width={170} height={96} fontSize={24} position={[430, 300]} />
       <Layout ref={sCite} layout padding={[6, 16]} radius={999} fill={`${C.teal}22`} stroke={C.teal} lineWidth={2} position={[430, 400]}>
         <Txt text="cited [1][2]" fill={C.teal} fontFamily={F.mono} fontWeight={700} fontSize={20} letterSpacing={1} />
@@ -124,6 +125,7 @@ export default makeScene2D(function* (view) {
   sKb().scale(0);
   for (const r of sDocs) r().scale(0).opacity(0);
   for (const r of [pFrozen, pQ, sCtxLabel]) r().opacity(0);
+  sAnsEdge().opacity(0);
   sCite().opacity(0).scale(0.8);
 
   // ---- choreography ----------------------------------------------------
@@ -150,7 +152,7 @@ export default makeScene2D(function* (view) {
   yield* all(sUser().scale(1, 0.45, easeOutBack), sKb().scale(1, 0.5, easeOutBack));
   yield* sE1.line().end(1, 0.3);
   sE1.dot().position([-360, 360]).opacity(1);
-  yield* sE1.dot().position([-300, 360], 0.25);
+  yield* sE1.dot().position([-310, 360], 0.25);
   sE1.dot().opacity(0);
 
   // retrieve: chunks pop out of the KB
@@ -163,7 +165,7 @@ export default makeScene2D(function* (view) {
   sE3.dot().position([30, 360]).opacity(1);
   yield* sE3.dot().position([120, 360], 0.3);
   sE3.dot().opacity(0);
-  yield* all(sAns().scale(1, 0.45, easeOutBack), sCite().opacity(1, 0.4), sCite().scale(1, 0.4, easeOutBack));
+  yield* all(sAnsEdge().opacity(0.5, 0.3), sAns().scale(1, 0.45, easeOutBack), sCite().opacity(1, 0.4), sCite().scale(1, 0.4, easeOutBack));
   yield* sStats().opacity(1, 0.4);
 
   yield* waitFor(1.8);

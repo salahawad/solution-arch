@@ -41,6 +41,7 @@ export default makeScene2D(function* (view) {
   const sDb = createRef<Node>();
   const sOutbox = createRef<Rect>();
   const sTxn = createRef<Rect>();
+  const sTxnLabel = createRef<Txt>();
   const sRelay = createRef<Rect>();
   const sKafka = createRef<Rect>();
   const sWrite = {line: createRef<Line>(), dot: createRef<Circle>()};
@@ -97,7 +98,7 @@ export default makeScene2D(function* (view) {
 
       {/* the atomic transaction wrap around SERVICE -> DB(+outbox) */}
       <Rect ref={sTxn} position={[-275, 372]} size={[420, 320]} radius={20} fill={`${C.teal}0D`} stroke={C.teal} lineWidth={2.5} lineDash={[10, 10]} />
-      <Txt text="1 TXN" fill={C.teal} fontFamily={F.mono} fontWeight={700} fontSize={22} letterSpacing={3} position={[-275, 232]} />
+      <Txt ref={sTxnLabel} text="1 TXN" fill={C.teal} fontFamily={F.mono} fontWeight={700} fontSize={22} letterSpacing={3} position={[-275, 232]} />
 
       {/* SERVICE -> DB */}
       <GlowNode ref={sSvc} label="SERVICE" accent={C.teal} width={190} height={96} fontSize={26} position={[-400, 350]} />
@@ -126,7 +127,7 @@ export default makeScene2D(function* (view) {
 
       <StatRow ref={sStats} position={[0, 700]} gap={22}>
         <StatCard label="WRITE" value="atomic" accent={C.teal} width={300} />
-        <StatCard label="DELIVERY" value="at-least-once" accent={C.teal} width={300} />
+        <StatCard label="DELIVERY" value="≥1 time" accent={C.teal} width={300} />
         <StatCard label="LOST" value="none" accent={C.teal} width={300} />
       </StatRow>
     </>,
@@ -142,6 +143,7 @@ export default makeScene2D(function* (view) {
   pOk().opacity(0).scale(0.8);
   sSent().opacity(0).scale(0.8);
   sTxn().opacity(0).scale(0.92);
+  sTxnLabel().opacity(0);
 
   // ---- choreography ----------------------------------------------------
   yield* title().opacity(1, 0.6);
@@ -186,7 +188,7 @@ export default makeScene2D(function* (view) {
   yield* sStats().opacity(1, 0.4);
 
   // one transaction writes the order row + the outbox row together
-  yield* all(sTxn().opacity(1, 0.4), sTxn().scale(1, 0.4, easeOutBack));
+  yield* all(sTxn().opacity(1, 0.4), sTxn().scale(1, 0.4, easeOutBack), sTxnLabel().opacity(1, 0.4));
   yield* sWrite.line().end(1, 0.3);
   yield* all(sOutbox().scale(1, 0.5, easeOutBack));
   sWrite.dot().position([-305, 350]).opacity(1);

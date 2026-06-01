@@ -27,6 +27,7 @@ export default makeScene2D(function* (view) {
   // PROBLEM — the budget overflows; earliest tokens are dropped
   const pPill = createRef<Layout>();
   const pWindow = createRef<Rect>();
+  const pWinLabel = createRef<Txt>();
   const pTiles = [
     createRef<Rect>(), createRef<Rect>(), createRef<Rect>(), createRef<Rect>(),
     createRef<Rect>(), createRef<Rect>(), createRef<Rect>(), createRef<Rect>(),
@@ -39,6 +40,7 @@ export default makeScene2D(function* (view) {
   // SOLUTION — compact: summarize the old, retrieve the relevant; it fits
   const sPill = createRef<Layout>();
   const sWindow = createRef<Rect>();
+  const sWinLabel = createRef<Txt>();
   const sOld = [createRef<Rect>(), createRef<Rect>(), createRef<Rect>()]; // collapse into one summary
   const sSummary = createRef<Rect>();
   const sRetrieved = [createRef<Rect>(), createRef<Rect>()];
@@ -129,7 +131,7 @@ export default makeScene2D(function* (view) {
         shadowColor={C.teal}
         shadowBlur={theme.glow}
       />
-      <Txt text="CONTEXT WINDOW · 128K" fill={C.teal} fontFamily={F.mono} fontSize={22} fontWeight={700} letterSpacing={2} position={[pWinPos[0], pWinPos[1] - winH / 2 - 26]} />
+      <Txt ref={pWinLabel} text="CONTEXT WINDOW · 128K" fill={C.teal} fontFamily={F.mono} fontSize={22} fontWeight={700} letterSpacing={2} position={[pWinPos[0], pWinPos[1] - winH / 2 - 26]} />
 
       {/* the 8 token tiles that fill the window */}
       {pSlots.map((x, i) => Tile(pTiles[i], x, pWinPos[1], C.teal, `t${i + 1}`))}
@@ -158,7 +160,7 @@ export default makeScene2D(function* (view) {
         shadowColor={C.teal}
         shadowBlur={theme.glow}
       />
-      <Txt text="CONTEXT WINDOW · 128K" fill={C.teal} fontFamily={F.mono} fontSize={22} fontWeight={700} letterSpacing={2} position={[sWinPos[0], sWinPos[1] - winH / 2 - 26]} />
+      <Txt ref={sWinLabel} text="CONTEXT WINDOW · 128K" fill={C.teal} fontFamily={F.mono} fontSize={22} fontWeight={700} letterSpacing={2} position={[sWinPos[0], sWinPos[1] - winH / 2 - 26]} />
 
       {/* three old tiles that will collapse into one summary tile */}
       {sOld.map((r, i) =>
@@ -166,16 +168,16 @@ export default makeScene2D(function* (view) {
       )}
 
       {/* the merged "summary" tile (wide) — starts hidden, appears on compaction */}
-      {Tile(sSummary, sWinPos[0] - winW / 2 + 110, sWinPos[1], C.teal, 'summary', 168)}
+      {Tile(sSummary, sWinPos[0] - 218, sWinPos[1], C.teal, 'summary', 150)}
 
-      {/* a couple of "retrieved" relevant tiles */}
+      {/* a couple of "recall" (retrieved-relevant) tiles */}
       {sRetrieved.map((r, i) =>
-        Tile(r, sWinPos[0] - 20 + i * 124, sWinPos[1], C.teal, 'retrieved', 108),
+        Tile(r, sWinPos[0] - 79 + i * 116, sWinPos[1], C.teal, 'recall', 104),
       )}
 
       {/* recent tokens kept verbatim on the right */}
       {sKeep.map((r, i) =>
-        Tile(r, sWinPos[0] + winW / 2 - 156 + i * tileStep, sWinPos[1], C.teal, `t${6 + i}`),
+        Tile(r, sWinPos[0] + 129 + i * 68, sWinPos[1], C.teal, `t${6 + i}`),
       )}
 
       <StatRow ref={sStats} position={[0, 700]} gap={22}>
@@ -189,6 +191,8 @@ export default makeScene2D(function* (view) {
   // ---- initial hidden states ------------------------------------------
   title().opacity(0);
   for (const r of [pPill, pStats, sPill, sStats]) r().opacity(0);
+  pWinLabel().opacity(0);
+  sWinLabel().opacity(0);
   pWindow().scale(0);
   sWindow().scale(0);
   for (const r of pTiles) r().scale(0).opacity(0);
@@ -206,7 +210,7 @@ export default makeScene2D(function* (view) {
 
   // PROBLEM: the window fills, then overflows --------------------------
   yield* pPill().opacity(1, 0.4);
-  yield* pWindow().scale(1, 0.55, easeOutBack);
+  yield* all(pWindow().scale(1, 0.55, easeOutBack), pWinLabel().opacity(1, 0.4));
 
   // feed a stream of tokens in from the left — they pop into their slots
   for (let i = 0; i < pTiles.length; i++) {
@@ -238,7 +242,7 @@ export default makeScene2D(function* (view) {
 
   // SOLUTION: compact so it fits ---------------------------------------
   yield* sPill().opacity(1, 0.4);
-  yield* sWindow().scale(1, 0.55, easeOutBack);
+  yield* all(sWindow().scale(1, 0.55, easeOutBack), sWinLabel().opacity(1, 0.4));
 
   // the recent tokens we keep verbatim appear on the right
   yield* all(
@@ -256,7 +260,7 @@ export default makeScene2D(function* (view) {
   yield* waitFor(0.4);
 
   // compaction: the three old tiles collapse / merge into one wide summary tile
-  const mergeTarget: [number, number] = [sWinPos[0] - winW / 2 + 110, sWinPos[1]];
+  const mergeTarget: [number, number] = [sWinPos[0] - 218, sWinPos[1]];
   yield* all(
     ...sOld.map(r =>
       all(

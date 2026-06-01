@@ -27,7 +27,7 @@ export default makeScene2D(function* (view) {
   const eIn = [mkEdge(), mkEdge(), mkEdge()];
   const s2 = createRef();
   const cap2 = createSignal(98);
-  const shardY = [250, 380, 510];
+  const shardY = [195, 390, 585];
 
   view.add(
     <>
@@ -47,10 +47,10 @@ export default makeScene2D(function* (view) {
       <GlowNode ref={router} label="router" accent={C.teal} width={210} height={104} position={[-380, 390]} />
       <Txt ref={hashLabel} text="hash(key) % 3" fill={C.muted} fontFamily={F.mono} fontSize={22} position={[-380, 470]} opacity={0} />
       {shardY.map((y, i) => (
-        <DbNode ref={shards[i]} label={`shard-${i}`} sub="33%" accent={C.teal} width={150} height={150} position={[360, y]} />
+        <DbNode ref={shards[i]} label={`shard-${i}`} sub="33%" accent={C.teal} width={150} height={190} position={[360, y]} />
       ))}
       {shardY.map((y, i) => edge(eIn[i], [-275, 390], [285, y], C.teal))}
-      <StatRow ref={s2} position={[0, 710]} gap={22}>
+      <StatRow ref={s2} position={[0, 775]} gap={22}>
         <StatCard label="CAPACITY" value={() => `${Math.round(cap2())}%`} accent={C.teal} width={300} />
         <StatCard label="WRITES/s" value="3x" accent={C.teal} width={300} />
         <StatCard label="NODES" value="3" accent={C.teal} width={300} />

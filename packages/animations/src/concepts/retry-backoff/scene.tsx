@@ -87,7 +87,7 @@ export default makeScene2D(function* (view) {
       />
 
       {/* ============ STATE 1 — RETRY STORM (problem) ============ */}
-      <SectionPill ref={pPill} variant="problem" label="RETRY STORM" note="all clients retry at once — in lockstep" position={[-30, -700]} />
+      <SectionPill ref={pPill} variant="problem" label="RETRY STORM" note="all clients retry at once — in lockstep" position={[-30, -680]} />
 
       <GlowNode ref={pClient[0]} label="client-1" accent={C.coral} width={210} height={84} fontSize={26} position={[-360, pCliY[0]]} />
       <GlowNode ref={pClient[1]} label="client-2" accent={C.coral} width={210} height={84} fontSize={26} position={[-360, pCliY[1]]} />

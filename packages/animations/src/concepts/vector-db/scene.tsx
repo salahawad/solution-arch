@@ -121,7 +121,7 @@ export default makeScene2D(function* (view) {
 
       <StatRow ref={sStats} position={[0, 720]} gap={22}>
         <StatCard label="SEARCH" value="by meaning" accent={C.teal} width={300} />
-        <StatCard label="INDEX" value="ANN · HNSW" accent={C.teal} width={300} />
+        <StatCard label="INDEX" value="HNSW ANN" accent={C.teal} width={300} />
         <StatCard label="TOP-K" value="3 nearest" accent={C.teal} width={300} />
       </StatRow>
     </>,

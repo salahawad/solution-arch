@@ -55,6 +55,8 @@ export default makeScene2D(function* (view) {
 
   // SOLUTION panel
   const sPill = createRef<Layout>();
+  const sCpLabel = createRef<Txt>();
+  const sApLabel = createRef<Txt>();
   const sCpA = createRef<Rect>();
   const sCpB = createRef<Rect>();
   const sCpLink = createRef<Line>();
@@ -146,7 +148,7 @@ export default makeScene2D(function* (view) {
       />
 
       {/* ---- CP outcome row ---- */}
-      <Txt text="CP" fill={C.teal} fontFamily={F.sans} fontWeight={800} fontSize={40} position={[-440, 250 + cpY]} />
+      <Txt ref={sCpLabel} text="CP" fill={C.teal} fontFamily={F.sans} fontWeight={800} fontSize={40} position={[-440, 250 + cpY]} />
       <GlowNode ref={sCpA} label="NODE A" accent={C.teal} width={200} height={92} position={[-200, 250 + cpY]} />
       <GlowNode ref={sCpB} label="NODE B" accent={C.teal} width={200} height={92} position={[260, 250 + cpY]} />
       <Line
@@ -169,7 +171,7 @@ export default makeScene2D(function* (view) {
       </Node>
 
       {/* ---- AP outcome row ---- */}
-      <Txt text="AP" fill={C.amber} fontFamily={F.sans} fontWeight={800} fontSize={40} position={[-440, 470 + apY]} />
+      <Txt ref={sApLabel} text="AP" fill={C.amber} fontFamily={F.sans} fontWeight={800} fontSize={40} position={[-440, 470 + apY]} />
       <GlowNode ref={sApA} label="NODE A" accent={C.amber} width={200} height={92} position={[-200, 470 + apY]} />
       <GlowNode ref={sApB} label="NODE B" accent={C.amber} width={200} height={92} position={[260, 470 + apY]} />
       <Line
@@ -201,7 +203,7 @@ export default makeScene2D(function* (view) {
 
   // ---- initial hidden states ------------------------------------------
   title().opacity(0);
-  for (const r of [pPill, pStats, sPill, sStats]) r().opacity(0);
+  for (const r of [pPill, pStats, sPill, sStats, sCpLabel, sApLabel]) r().opacity(0);
   for (const r of [pA, pB, sCpA, sCpB, sApA, sApB]) r().scale(0);
 
   // ---- choreography ----------------------------------------------------
@@ -237,7 +239,7 @@ export default makeScene2D(function* (view) {
   yield* sPill().opacity(1, 0.4);
 
   // CP row reveals
-  yield* all(sCpA().scale(1, 0.45, easeOutBack), sCpB().scale(1, 0.45, easeOutBack));
+  yield* all(sCpLabel().opacity(1, 0.3), sCpA().scale(1, 0.45, easeOutBack), sCpB().scale(1, 0.45, easeOutBack));
   yield* all(sCpLink().opacity(0.4, 0.2), sCpBolt().opacity(1, 0.3));
   yield* sCpEdge().end(1, 0.3);
   // write travels toward minority node B, then bounces — rejected
@@ -248,7 +250,7 @@ export default makeScene2D(function* (view) {
   yield* waitFor(0.3);
 
   // AP row reveals
-  yield* all(sApA().scale(1, 0.45, easeOutBack), sApB().scale(1, 0.45, easeOutBack));
+  yield* all(sApLabel().opacity(1, 0.3), sApA().scale(1, 0.45, easeOutBack), sApB().scale(1, 0.45, easeOutBack));
   yield* all(sApLink().opacity(0.4, 0.2), sApBolt().opacity(1, 0.3));
   yield* sApEdge().end(1, 0.3);
   // write travels into node B and is accepted (available, possibly stale)

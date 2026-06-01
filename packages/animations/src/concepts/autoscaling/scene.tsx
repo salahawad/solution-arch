@@ -27,6 +27,7 @@ export default makeScene2D(function* (view) {
   // PROBLEM — fixed fleet of 3 pods, saturated by the noon spike
   const pPill = createRef<Layout>();
   const pCurve = createRef<Line>();
+  const pCurveLabels = createRef<Node>();
   const pPods = [createRef<Rect>(), createRef<Rect>(), createRef<Rect>()];
   const pSat = createRef<Node>();
   const pStats = createRef<Layout>();
@@ -34,6 +35,7 @@ export default makeScene2D(function* (view) {
   // SOLUTION — HPA scales the fleet from 3 to 6 on queue depth
   const sPill = createRef<Layout>();
   const sCurve = createRef<Line>();
+  const sCurveLabel = createRef<Node>();
   const sHpa = createRef<Rect>();
   const sRing = createRef<Circle>();
   const sRing2 = createRef<Circle>();
@@ -89,8 +91,10 @@ export default makeScene2D(function* (view) {
           shadowBlur={theme.glow}
           end={0}
         />
-        <Txt text="noon spike" fill={C.coral} fontFamily={F.mono} fontSize={22} letterSpacing={1} position={[420, -500]} offset={[1, 0]} />
-        <Txt text="load" fill={C.muted} fontFamily={F.mono} fontSize={22} letterSpacing={1} position={[-440, -360]} offset={[1, 0]} />
+        <Node ref={pCurveLabels}>
+          <Txt text="noon spike" fill={C.coral} fontFamily={F.mono} fontSize={22} letterSpacing={1} position={[420, -500]} offset={[1, 0]} />
+          <Txt text="load" fill={C.muted} fontFamily={F.mono} fontSize={22} letterSpacing={1} position={[-440, -360]} offset={[1, 0]} />
+        </Node>
       </Node>
 
       {/* the fixed fleet of 3 pods, all driven to 100% (coral) */}
@@ -128,7 +132,9 @@ export default makeScene2D(function* (view) {
           shadowBlur={theme.glow}
           end={0}
         />
-        <Txt text="load" fill={C.muted} fontFamily={F.mono} fontSize={22} letterSpacing={1} position={[-180, 250]} offset={[1, 0]} />
+        <Node ref={sCurveLabel}>
+          <Txt text="load" fill={C.muted} fontFamily={F.mono} fontSize={22} letterSpacing={1} position={[-180, 250]} offset={[1, 0]} />
+        </Node>
       </Node>
 
       {/* a fleet that grows from 3 to 6 pods, all healthy at ~55% (teal) */}
@@ -150,7 +156,7 @@ export default makeScene2D(function* (view) {
 
   // ---- initial hidden states ------------------------------------------
   title().opacity(0);
-  for (const r of [pPill, pStats, sPill, sStats]) r().opacity(0);
+  for (const r of [pPill, pStats, sPill, sStats, pCurveLabels, sCurveLabel]) r().opacity(0);
   for (const r of pPods) r().scale(0);
   pSat().scale(0).opacity(0);
   sHpa().scale(0);
@@ -167,7 +173,7 @@ export default makeScene2D(function* (view) {
   yield* pStats().opacity(1, 0.4);
 
   // the load curve grows up to the noon spike, pods drive to 100% (coral)
-  yield* pCurve().end(1, 1.0, easeOutCubic);
+  yield* all(pCurve().end(1, 1.0, easeOutCubic), pCurveLabels().opacity(1, 0.6));
   yield* all(...pLoad.map(s => s(100, 1.2)));
 
   // saturated badge lands
@@ -179,7 +185,7 @@ export default makeScene2D(function* (view) {
   yield* sHpa().scale(1, 0.5, easeOutBack);
 
   // the same curve climbs, but the fleet responds
-  yield* sCurve().end(1, 0.9, easeOutCubic);
+  yield* all(sCurve().end(1, 0.9, easeOutCubic), sCurveLabel().opacity(1, 0.6));
 
   // first 3 pods pop in and take the initial load
   yield* all(...sPods.slice(0, 3).map(r => r().scale(1, 0.45, easeOutBack)));

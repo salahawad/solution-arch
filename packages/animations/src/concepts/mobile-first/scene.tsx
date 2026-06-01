@@ -111,7 +111,7 @@ export default makeScene2D(function* (view) {
         <Rect width={280} height={22} radius={4} fill={`${C.coral}33`} position={[40, 96]} />
         {/* the phone's right edge — everything past it needs horizontal scroll */}
         <Line points={[[105, -150], [105, 150]]} stroke={C.coral} lineWidth={2} lineDash={[6, 8]} opacity={0.85} />
-        <Txt text="overflow →" fill={C.coral} fontFamily={F.mono} fontSize={20} letterSpacing={1} position={[150, 150]} />
+        <Txt text="overflow →" fill={C.coral} fontFamily={F.mono} fontSize={20} letterSpacing={1} position={[255, 60]} />
       </Node>
 
       <StatRow ref={pStats} position={[0, -180]} gap={22}>

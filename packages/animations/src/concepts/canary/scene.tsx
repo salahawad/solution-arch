@@ -85,7 +85,7 @@ export default makeScene2D(function* (view) {
       </Rect>
 
       <StatRow ref={pStats} position={[0, -170]} gap={22}>
-        <StatCard label="LIVE" value="v2 · 100%" accent={C.coral} width={300} />
+        <StatCard label="LIVE" value="v2 100%" accent={C.coral} width={300} />
         <StatCard label="BLAST RADIUS" value="100%" accent={C.coral} width={300} />
         <StatCard label="ERRORS" value={() => `${Math.round(pErr())}%`} accent={C.coral} width={300} />
       </StatRow>
@@ -114,7 +114,7 @@ export default makeScene2D(function* (view) {
       </Layout>
 
       <StatRow ref={sStats} position={[0, 700]} gap={22}>
-        <StatCard label="CANARY" value="5% → 100%" accent={C.teal} width={300} />
+        <StatCard label="CANARY" value="5→100%" accent={C.teal} width={300} />
         <StatCard label="ERROR BUDGET" value="ok" accent={C.teal} width={300} />
         <StatCard label="ON SPIKE" value="rollback" accent={C.amber} width={300} />
       </StatRow>

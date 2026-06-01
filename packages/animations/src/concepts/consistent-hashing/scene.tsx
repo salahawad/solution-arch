@@ -47,6 +47,7 @@ export default makeScene2D(function* (view) {
 
   // PROBLEM
   const pPill = createRef<Layout>();
+  const pKeysLabel = createRef<Txt>();
   const pStats = createRef<Layout>();
   const pKeys = [createRef<Circle>(), createRef<Circle>(), createRef<Circle>(), createRef<Circle>(), createRef<Circle>(), createRef<Circle>()];
   const pKeyEdge = [createRef<Line>(), createRef<Line>(), createRef<Line>(), createRef<Line>(), createRef<Line>(), createRef<Line>()];
@@ -61,6 +62,7 @@ export default makeScene2D(function* (view) {
   const sNodes = [createRef<Node>(), createRef<Node>(), createRef<Node>(), createRef<Node>()];
   const sKeys = [createRef<Circle>(), createRef<Circle>(), createRef<Circle>(), createRef<Circle>(), createRef<Circle>(), createRef<Circle>()];
   const sArc = createRef<Line>();
+  const sLegend = createRef<Rect>();
 
   // ---- metric signals --------------------------------------------------
   const pNodeN = createSignal(3);
@@ -118,7 +120,7 @@ export default makeScene2D(function* (view) {
       />
 
       {/* key column (left) feeding nodes (right) by modulo */}
-      <Txt text="keys" fill={C.muted} fontFamily={F.mono} fontSize={22} letterSpacing={2} position={[-410, -640]} />
+      <Txt ref={pKeysLabel} text="keys" fill={C.muted} fontFamily={F.mono} fontSize={22} letterSpacing={2} position={[-410, -640]} />
       {pKeys.map((r, i) => (
         <Circle
           ref={r}
@@ -243,7 +245,7 @@ export default makeScene2D(function* (view) {
       ))}
 
       {/* legend / nodes summary on the right of the ring */}
-      <GlowNode label="ring 0 … 2^32" accent={C.teal} width={300} height={84} fontSize={26} position={[300, 230]} />
+      <GlowNode ref={sLegend} label="ring 0 … 2^32" accent={C.teal} width={300} height={84} fontSize={26} position={[300, 230]} />
 
       <StatRow ref={sStats} position={[0, 700]} gap={22}>
         <StatCard label="STRUCTURE" value="ring" accent={C.teal} width={300} />
@@ -259,6 +261,9 @@ export default makeScene2D(function* (view) {
   for (const r of pWeb) r().scale(0);
   // node-3 (problem) starts hidden entirely
   pWeb[3]().opacity(0);
+  // the "keys" caption fades in with the key column; the ring legend pops in with the ring
+  pKeysLabel().opacity(0);
+  sLegend().opacity(0).scale(0);
 
   // ---- choreography ----------------------------------------------------
   yield* title().opacity(1, 0.6);
@@ -275,6 +280,7 @@ export default makeScene2D(function* (view) {
   );
 
   // reveal keys and map them across the 3 nodes by modulo (teal = settled)
+  yield* pKeysLabel().opacity(1, 0.3);
   for (let i = 0; i < pKeys.length; i++) {
     pKeys[i]().scale(1, 0.18, easeOutBack);
     pKeys[i]().opacity(1, 0.18);
@@ -332,6 +338,12 @@ export default makeScene2D(function* (view) {
 
   // draw the ring
   yield* ringNode().end(1, 0.8, easeOutCubic);
+
+  // bring in the ring legend alongside the drawn ring
+  yield* all(
+    sLegend().scale(1, 0.4, easeOutBack),
+    sLegend().opacity(1, 0.4),
+  );
 
   // sonar pulse on the ring
   spawn(pulseSonar(ringPulse(), ringR * 2));

@@ -128,9 +128,9 @@ export default makeScene2D(function* (view) {
       <FlowEdge lineRef={sReplLine[0]} dotRef={sReplDot[0]} from={[95, 320]} to={[235, sRepY[0]]} color={C.teal} />
       <FlowEdge lineRef={sReplLine[1]} dotRef={sReplDot[1]} from={[95, 380]} to={[235, sRepY[1]]} color={C.teal} />
 
-      {/* the read replicas */}
-      <DbNode ref={sRep[0]} label="replica-1" sub="reads" accent={C.teal} width={210} height={150} position={[360, sRepY[0]]} />
-      <DbNode ref={sRep[1]} label="replica-2" sub="reads" accent={C.teal} width={210} height={150} position={[360, sRepY[1]]} />
+      {/* the read replicas — height>=190 so the "reads" sub clears the cylinder band */}
+      <DbNode ref={sRep[0]} label="replica-1" sub="reads" accent={C.teal} width={210} height={196} position={[360, sRepY[0]]} />
+      <DbNode ref={sRep[1]} label="replica-2" sub="reads" accent={C.teal} width={210} height={196} position={[360, sRepY[1]]} />
 
       {/* reads fan from APP out to the replicas */}
       <FlowEdge lineRef={sReadLine[0]} dotRef={sReadDot[0]} from={[-400, 405]} to={[270, sRepY[0]]} color={C.amber} />

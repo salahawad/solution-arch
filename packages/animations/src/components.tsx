@@ -340,7 +340,11 @@ export function Bucket(props: BucketProps) {
   const h = 200;
   return (
     <Node position={props.position}>
-      <Rect ref={props.ref} width={w} height={h} radius={[12, 12, 28, 28]} fill={C.panel} stroke={accent} lineWidth={2.5} shadowColor={accent} shadowBlur={theme.glow} />
+      {/* label lives INSIDE the body Rect so hiding the bucket (ref = the Rect) hides the
+          label too — otherwise a sibling label stays visible before the bucket reveals */}
+      <Rect ref={props.ref} width={w} height={h} radius={[12, 12, 28, 28]} fill={C.panel} stroke={accent} lineWidth={2.5} shadowColor={accent} shadowBlur={theme.glow}>
+        {props.label ? <Txt text={props.label} fill={C.muted} fontFamily={F.mono} fontSize={22} letterSpacing={2} y={h / 2 + 32} /> : null}
+      </Rect>
       {Array.from({length: cap}).map((_, i) => (
         <Circle
           ref={props.tokenRefs?.[i]}
@@ -353,7 +357,6 @@ export function Bucket(props: BucketProps) {
           opacity={0}
         />
       ))}
-      {props.label ? <Txt text={props.label} fill={C.muted} fontFamily={F.mono} fontSize={22} letterSpacing={2} y={h / 2 + 32} /> : null}
     </Node>
   );
 }
