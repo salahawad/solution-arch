@@ -19,3 +19,6 @@ docs/superpowers/
 # packages/site/public/animations + packages/site/src/concepts.json so Vercel only
 # needs to run `astro build`. Regenerate them with `pnpm rebuild:all`.
 packages/animations/dist/
+
+# Author-only reel artifacts (rendered MP4s + captions) — never deployed, just posted
+packages/animations/reels/

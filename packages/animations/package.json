@@ -12,6 +12,7 @@
     "build": "vite build",
     "build:embeds": "node scripts/build-embeds.mjs",
     "posters": "node scripts/make-posters.mjs",
+    "reels": "node scripts/make-reels.mjs",
     "serve": "vite preview"
   },
   "devDependencies": {

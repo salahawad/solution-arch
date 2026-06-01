@@ -33,6 +33,7 @@
     "dev:site": "pnpm --filter @sa/site dev",
     "build:embeds": "pnpm --filter @sa/animations build:embeds",
     "build:posters": "pnpm --filter @sa/animations posters",
+    "build:reels": "pnpm --filter @sa/animations reels",
     "build:site": "pnpm --filter @sa/site build",
     "build": "pnpm run build:site",
     "rebuild:all": "pnpm run build:embeds && pnpm run build:posters && pnpm run build:site"
