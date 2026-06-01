@@ -54,10 +54,12 @@ export interface SectionPillProps {
   label: string;
   note: string;
   variant?: 'problem' | 'solution';
+  /** explicit accent color; overrides `variant` (e.g. amber for a neutral comparison band) */
+  accent?: string;
   position?: PossibleVector2;
 }
 export function SectionPill(props: SectionPillProps) {
-  const accent = props.variant === 'problem' ? C.coral : C.teal;
+  const accent = props.accent ?? (props.variant === 'problem' ? C.coral : C.teal);
   return (
     <Layout ref={props.ref} layout direction="row" alignItems="center" gap={20} position={props.position}>
       <Rect layout padding={[10, 24]} radius={999} fill={`${accent}22`} stroke={accent} lineWidth={2}>
@@ -286,6 +288,27 @@ export function StatRow(props: StatRowProps) {
   return (
     <Layout ref={props.ref} layout direction="row" gap={props.gap ?? 24} alignItems="center" position={props.position}>
       {props.children}
+    </Layout>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * HeroMetric — a big centered animated number (the payoff), with an optional caption.
+ * Drive `value`/`sub` from scene signals, e.g. value={() => `${Math.round(ms())}ms`}.
+ * -------------------------------------------------------------------------- */
+export interface HeroMetricProps {
+  ref?: Reference<Layout>;
+  value: SignalValue<string>;
+  sub?: SignalValue<string>;
+  accent?: string;
+  fontSize?: number;
+  position?: PossibleVector2;
+}
+export function HeroMetric(props: HeroMetricProps) {
+  return (
+    <Layout ref={props.ref} layout direction="column" alignItems="center" gap={8} position={props.position}>
+      <Txt text={props.value} fill={props.accent ?? C.teal} fontFamily={F.sans} fontWeight={800} fontSize={props.fontSize ?? 140} />
+      {props.sub ? <Txt text={props.sub} fill={C.muted} fontFamily={F.sans} fontSize={30} /> : null}
     </Layout>
   );
 }

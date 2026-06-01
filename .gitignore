@@ -22,3 +22,6 @@ packages/animations/dist/
 
 # Author-only reel artifacts (rendered MP4s + captions) — never deployed, just posted
 packages/animations/reels/
+
+# Local scratch: downloaded reference reels and other throwaway files
+temp/

@@ -33,6 +33,8 @@ import vectorDb from './concepts/vector-db/scene?scene';
 import hallucination from './concepts/hallucination/scene?scene';
 import contextWindow from './concepts/context-window/scene?scene';
 import monitoring from './concepts/monitoring/scene?scene';
+import databaseIndexing from './concepts/database-indexing/scene?scene';
+import restVsGrpc from './concepts/rest-vs-grpc/scene?scene';
 
 // Editor preview shows the whole library. The embed build uses the per-concept files
 // in projects/ to produce one bundle per concept.
@@ -44,5 +46,6 @@ export default makeProject({
     kubernetes, offlineFirst, mobileFirst,
     distributedTracing, canary, backpressure, bulkhead, outbox, deadLetterQueue, autoscaling,
     rag, aiAgents, vectorDb, hallucination, contextWindow, monitoring,
+    databaseIndexing, restVsGrpc,
   ],
 });

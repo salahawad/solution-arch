@@ -625,5 +625,43 @@
     "added": "2026-06-01",
     "bundle": "/animations/monitoring.js",
     "poster": "/animations/monitoring.png"
+  },
+  {
+    "slug": "database-indexing",
+    "title": [
+      "Database ",
+      "Indexing"
+    ],
+    "category": "Data",
+    "summary": "Keep one column's values sorted with pointers to the rows, so the engine seeks straight to the match instead of reading every row.",
+    "question": "Why does WHERE email = ? crawl as the table grows — and how does an index turn a million-row scan into ~20 steps?",
+    "details": [
+      "Without an index the planner runs a full (sequential) scan: it reads and tests every row against the predicate, so latency scales linearly with row count — snappy at 1K rows, a multi-second stall at 10M.",
+      "A B-tree index stores the column sorted with pointers back to the rows, so the engine binary-searches to the match in O(log n) — roughly 20 hops for a million rows instead of a million reads.",
+      "Indexes aren't free: every insert/update/delete must keep them current, they cost disk, and on low-selectivity columns (a boolean, a status) the planner may correctly ignore one because a scan is cheaper.",
+      "Match the index to the query: composite indexes only help left-to-right (the prefix rule), a covering index answers from the index alone with no table fetch, and wrapping the column in a function (WHERE lower(email)=…) silently disables it."
+    ],
+    "added": "2026-06-01",
+    "bundle": "/animations/database-indexing.js",
+    "poster": "/animations/database-indexing.png"
+  },
+  {
+    "slug": "rest-vs-grpc",
+    "title": [
+      "REST vs ",
+      "gRPC"
+    ],
+    "category": "Networking",
+    "summary": "Same job — call a remote service — but JSON-over-HTTP/1.1 trades wire efficiency and streaming for universal, debuggable simplicity.",
+    "question": "When does swapping REST for gRPC actually pay off — and what do you give up at the edge?",
+    "details": [
+      "REST sends human-readable JSON over HTTP/1.1: universal, cacheable, and debuggable with curl — ideal for public and browser-facing APIs, at the cost of verbose payloads and one response per request.",
+      "gRPC sends compact Protocol Buffers over HTTP/2: a typed .proto contract generates client and server stubs, and HTTP/2 multiplexing lets one connection carry many concurrent calls with far less per-call overhead.",
+      "Streaming is the real divide: HTTP/2 gives gRPC server-, client-, and bidirectional streaming over one connection, where REST falls back to polling, long-poll, or a separate WebSocket.",
+      "Choose by edge: REST for public APIs, browsers, and cacheable reads; gRPC for internal service-to-service, low-latency/high-throughput, and streaming — but browsers need a grpc-web proxy and binary frames are harder to inspect."
+    ],
+    "added": "2026-06-01",
+    "bundle": "/animations/rest-vs-grpc.js",
+    "poster": "/animations/rest-vs-grpc.png"
   }
 ]
