@@ -9,6 +9,7 @@ export const CATEGORY_ORDER = [
   "Resilience",
   "Data",
   "Observability",
+  "AI Systems",
   "Scaling",
   "Coordination",
   "Messaging",

@@ -484,5 +484,95 @@
     ],
     "bundle": "/animations/autoscaling.js",
     "poster": "/animations/autoscaling.png"
+  },
+  {
+    "slug": "rag",
+    "title": [
+      "",
+      "RAG"
+    ],
+    "category": "AI Systems",
+    "summary": "Ground the model in facts you retrieve at query time, instead of trusting whatever it memorized in training.",
+    "question": "An LLM only knows its frozen training data — so how do you make it answer from your private, up-to-date docs?",
+    "details": [
+      "A base model answers only from frozen training weights: it can't see your private data or anything past its cutoff, and it will confidently invent the gap. RAG retrieves relevant documents at query time and puts them in the prompt as grounding.",
+      "The pipeline is embed → retrieve → augment → generate: embed the question, fetch the top-k nearest chunks from a vector store, prepend them as context, and ask the model to answer from that context and cite it.",
+      "Retrieval quality is the whole ballgame: chunk size, the embedding model, and the top-k cutoff decide what the model sees — missing or off-topic retrieval yields a confident wrong answer just like no RAG at all, so add a reranker and hybrid keyword+vector search when recall matters.",
+      "RAG is cheaper and fresher than fine-tuning for knowledge that changes — re-index instead of retrain — but it spends context-window tokens on every call and can't teach new skills or style; use fine-tuning for behaviour, RAG for facts. The same retrieval keeps answers inside the context window and curbs hallucination."
+    ],
+    "bundle": "/animations/rag.js",
+    "poster": "/animations/rag.png"
+  },
+  {
+    "slug": "ai-agents",
+    "title": [
+      "AI ",
+      "Agents"
+    ],
+    "category": "AI Systems",
+    "summary": "Wrap an LLM in a loop with tools so it can act — search, call APIs, run code — and work a multi-step task, not just talk.",
+    "question": "A single model call can only produce text — so how does it actually book the flight, query the DB, or fix the bug?",
+    "details": [
+      "A one-shot completion can only emit text. An agent puts the model in a loop — reason, choose a tool, act, observe the result, repeat — so it can gather information and take real actions until the task is done or a budget is hit.",
+      "Tools are the agent's hands: each is a typed function (search, SQL, HTTP, code-exec) the model may call; the runtime executes it and feeds the result back. The model's job is choosing which tool and with what arguments, not doing the work itself.",
+      "Autonomy is the risk: loops can run away (cap the steps and the spend), tool calls have side effects (sandbox them, confirm destructive ones), and errors compound across steps — so make tools idempotent and feed failures back as observations the agent can recover from.",
+      "Most 'agent' needs are met by a fixed workflow with a couple of tool calls; reserve open-ended multi-step agents for genuinely dynamic tasks, and keep a human in the loop wherever a wrong action is expensive."
+    ],
+    "bundle": "/animations/ai-agents.js",
+    "poster": "/animations/ai-agents.png"
+  },
+  {
+    "slug": "vector-db",
+    "title": [
+      "Vector ",
+      "Database"
+    ],
+    "category": "AI Systems",
+    "summary": "Search by meaning, not keywords: embed everything into vectors and find the nearest neighbours to a query.",
+    "question": "When 'affordable laptop' should match 'cheap notebook', why does keyword search fail — and how does vector search find it?",
+    "details": [
+      "Keyword search matches tokens, so it misses synonyms and paraphrases entirely. A vector database stores each item as an embedding — a point in high-dimensional space where nearby points mean similar things — and answers a query by its nearest neighbours.",
+      "Exact nearest-neighbour search over millions of vectors is too slow, so vector DBs use approximate indexes (HNSW, IVF) that trade a little recall for a huge speed-up; you tune the recall-vs-latency knob per use case.",
+      "Distance metric and embedding model have to match: cosine vs dot-product vs L2, and the same model for indexing and querying — mix them and the geometry is meaningless. Normalize, and re-embed everything when you change models.",
+      "It's the retrieval engine behind RAG and semantic search, but it's not a system of record: pair vectors with metadata filters, keep the source text elsewhere, and remember that adopting a new embedding model means a full re-index."
+    ],
+    "bundle": "/animations/vector-db.js",
+    "poster": "/animations/vector-db.png"
+  },
+  {
+    "slug": "hallucination",
+    "title": [
+      "",
+      "Hallucination"
+    ],
+    "category": "AI Systems",
+    "summary": "LLMs state false things with total confidence; design for it with grounding, citations, and the option to say 'I don't know'.",
+    "question": "The model gave a fluent, confident, completely wrong answer — why does that happen, and how do you contain it?",
+    "details": [
+      "A language model predicts plausible tokens, not true ones — fluency and confidence are unrelated to accuracy, so it fills any gap (missing knowledge, an ambiguous prompt) with a convincing fabrication rather than admitting uncertainty.",
+      "You can't eliminate it, only contain it: ground answers in retrieved sources (RAG), require citations the user can check, and constrain the model to the provided context so 'not in the context' becomes 'I don't know' instead of a guess.",
+      "Add verification for high-stakes output: validate against a schema or a tool/database, have a second pass cross-check, and prefer abstention — a refusal is far cheaper than a confident wrong answer in a medical, legal, or financial flow.",
+      "Treat it as a product risk, not just a model bug: surface sources and confidence, make the failure mode visible to users, and track hallucination rate as a measured metric rather than assuming a bigger model fixed it."
+    ],
+    "bundle": "/animations/hallucination.js",
+    "poster": "/animations/hallucination.png"
+  },
+  {
+    "slug": "context-window",
+    "title": [
+      "Context ",
+      "Window"
+    ],
+    "category": "AI Systems",
+    "summary": "A model can only see a fixed budget of tokens at once; everything past it is truncated, so you must choose what to keep.",
+    "question": "Your prompt plus history exceeds the token limit — what gets dropped, and how do you fit what matters?",
+    "details": [
+      "The context window is the model's working memory: prompt + history + retrieved docs + the answer must all fit in a fixed token budget. Exceed it and the request is rejected or the earliest tokens are silently truncated.",
+      "Bigger isn't a free fix: cost and latency scale with tokens, and models degrade in the middle of a long context ('lost in the middle') — a fact buried in 100K tokens gets less attention than the same fact in a tight prompt.",
+      "Fit what matters instead of stuffing everything: retrieve only the relevant chunks (RAG), summarize or compress older history, and use a sliding window that evicts the least useful turns rather than the oldest by default.",
+      "Budget the window like any scarce resource: reserve room for the response, count tokens before you send, and decide per feature what gets the space — system instructions, fresh context, or conversation history."
+    ],
+    "bundle": "/animations/context-window.js",
+    "poster": "/animations/context-window.png"
   }
 ]

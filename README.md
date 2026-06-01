@@ -13,7 +13,7 @@ animations** built with [Motion Canvas](https://motioncanvas.io). Each concept r
 
 ## The library
 
-27 concepts, each with a bespoke storyboard and an embeddable live player:
+32 concepts, each with a bespoke storyboard and an embeddable live player:
 
 | Concept | What it shows |
 | --- | --- |
@@ -44,6 +44,11 @@ animations** built with [Motion Canvas](https://motioncanvas.io). Each concept r
 | [Outbox Pattern](https://solution-arch.vercel.app/concepts/outbox/) | Write the business row and its outgoing event in one transaction, then relay the event — so a crash can't lose it or fake it. |
 | [Dead Letter Queue](https://solution-arch.vercel.app/concepts/dead-letter-queue/) | Shunt a message that keeps failing into a side queue so one poison message can't block the whole pipeline forever. |
 | [Autoscaling](https://solution-arch.vercel.app/concepts/autoscaling/) | Add and remove replicas from a real demand signal — queue depth or concurrency, not just CPU — before saturation turns into dropped traffic. |
+| [RAG](https://solution-arch.vercel.app/concepts/rag/) | Ground the model in facts you retrieve at query time, instead of trusting whatever it memorized in training. |
+| [AI Agents](https://solution-arch.vercel.app/concepts/ai-agents/) | Wrap an LLM in a loop with tools so it can act — search, call APIs, run code — and work a multi-step task, not just talk. |
+| [Vector Database](https://solution-arch.vercel.app/concepts/vector-db/) | Search by meaning, not keywords: embed everything into vectors and find the nearest neighbours to a query. |
+| [Hallucination](https://solution-arch.vercel.app/concepts/hallucination/) | LLMs state false things with total confidence; design for it with grounding, citations, and the option to say "I don't know". |
+| [Context Window](https://solution-arch.vercel.app/concepts/context-window/) | A model can only see a fixed budget of tokens at once; everything past it is truncated, so you must choose what to keep. |
 
 The list is driven by [`packages/animations/src/concepts/registry.json`](packages/animations/src/concepts/registry.json) — the single source of truth — and grouped on the site in the category order from [`packages/site/src/lib/categories.ts`](packages/site/src/lib/categories.ts), tuned to lead with depth (Resilience, Data) over entry-level recognition for a senior-architect audience.
 
