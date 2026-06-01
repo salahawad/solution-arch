@@ -13,7 +13,7 @@ animations** built with [Motion Canvas](https://motioncanvas.io). Each concept r
 
 ## The library
 
-20 concepts, each with a bespoke storyboard and an embeddable live player:
+27 concepts, each with a bespoke storyboard and an embeddable live player:
 
 | Concept | What it shows |
 | --- | --- |
@@ -37,6 +37,13 @@ animations** built with [Motion Canvas](https://motioncanvas.io). Each concept r
 | [Redis](https://solution-arch.vercel.app/concepts/redis/) | An in-memory store: microsecond reads, the cache-aside pattern, and pub/sub. |
 | [Offline-First](https://solution-arch.vercel.app/concepts/offline-first/) | Read and write a local store first, then sync in the background, so the app keeps working on a flaky or absent network. |
 | [Mobile-First](https://solution-arch.vercel.app/concepts/mobile-first/) | Design for the smallest, most constrained device first, then progressively enhance up to desktop. |
+| [Distributed Tracing](https://solution-arch.vercel.app/concepts/distributed-tracing/) | Stitch one request's hops across services into a single timeline so you can see where the latency actually goes. |
+| [Canary Deployment](https://solution-arch.vercel.app/concepts/canary/) | Send a new version a sliver of traffic first, watch its error rate, and ramp or roll back before it reaches everyone. |
+| [Backpressure](https://solution-arch.vercel.app/concepts/backpressure/) | When a consumer can't keep up, push the slowdown upstream instead of letting an unbounded queue swallow memory and work. |
+| [Bulkhead Isolation](https://solution-arch.vercel.app/concepts/bulkhead/) | Give each dependency its own pool so one slow dependency can't drain every thread and sink the whole service. |
+| [Outbox Pattern](https://solution-arch.vercel.app/concepts/outbox/) | Write the business row and its outgoing event in one transaction, then relay the event — so a crash can't lose it or fake it. |
+| [Dead Letter Queue](https://solution-arch.vercel.app/concepts/dead-letter-queue/) | Shunt a message that keeps failing into a side queue so one poison message can't block the whole pipeline forever. |
+| [Autoscaling](https://solution-arch.vercel.app/concepts/autoscaling/) | Add and remove replicas from a real demand signal — queue depth or concurrency, not just CPU — before saturation turns into dropped traffic. |
 
 The list is driven by [`packages/animations/src/concepts/registry.json`](packages/animations/src/concepts/registry.json) — the single source of truth — and grouped on the site in the category order from [`packages/site/src/lib/categories.ts`](packages/site/src/lib/categories.ts), tuned to lead with depth (Resilience, Data) over entry-level recognition for a senior-architect audience.
 

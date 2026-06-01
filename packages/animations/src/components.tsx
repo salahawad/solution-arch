@@ -126,8 +126,11 @@ export interface ServerNodeProps {
   load: SimpleSignal<number, void>; // 0..100
   position?: PossibleVector2;
   width?: number;
+  /** font size for the name + load badge (default 30); drop it for narrow nodes in dense grids */
+  fontSize?: number;
 }
 export function ServerNode(props: ServerNodeProps) {
+  const fontSize = props.fontSize ?? 30;
   const accent = () => {
     const l = props.load();
     return l > 66 ? C.coral : l > 0 ? C.teal : C.panelBorder;
@@ -149,8 +152,8 @@ export function ServerNode(props: ServerNodeProps) {
       justifyContent="space-between"
       padding={[0, 24]}
     >
-      <Txt text={props.name} fill={C.text} fontFamily={F.mono} fontSize={30} fontWeight={500} />
-      <Txt text={() => `${Math.round(props.load())}%`} fill={accent} fontFamily={F.mono} fontSize={30} fontWeight={700} />
+      <Txt text={props.name} fill={C.text} fontFamily={F.mono} fontSize={fontSize} fontWeight={500} />
+      <Txt text={() => `${Math.round(props.load())}%`} fill={accent} fontFamily={F.mono} fontSize={fontSize} fontWeight={700} />
     </Rect>
   );
 }

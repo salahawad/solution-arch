@@ -8,10 +8,12 @@
 export const CATEGORY_ORDER = [
   "Resilience",
   "Data",
+  "Observability",
   "Scaling",
   "Coordination",
   "Messaging",
   "Orchestration",
+  "Delivery",
   "Networking",
   "Caching",
   "Client",

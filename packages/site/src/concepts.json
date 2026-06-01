@@ -358,5 +358,131 @@
     ],
     "bundle": "/animations/leader-election.js",
     "poster": "/animations/leader-election.png"
+  },
+  {
+    "slug": "distributed-tracing",
+    "title": [
+      "Distributed ",
+      "Tracing"
+    ],
+    "category": "Observability",
+    "summary": "Stitch one request's hops across services into a single timeline so you can see where the latency actually goes.",
+    "question": "A request touches six services and one is slow — with only per-service logs, how do you find which one?",
+    "details": [
+      "Generate a trace ID at the edge and propagate it on every hop (the W3C traceparent header); each service records a span — start, duration, parent — so the whole request reassembles into one causal tree instead of scattered, unjoinable logs.",
+      "The span waterfall is where latency hides: sibling spans that overlap ran in parallel, a long bar with no children is the real culprit, and a gap between a parent and its first child is queueing or network you'd never spot per-service.",
+      "Tracing every request is too expensive at scale, so sample — but decide head-sampling consistently for the whole trace, or better, tail-sample so you keep the slow and failed traces and drop the boring fast ones.",
+      "A trace tells you where, not why: stamp the same trace ID onto your structured logs and metrics so one click pivots from the slow span to its logs — and remember an un-instrumented service or a dropped header leaves a blind hole in the tree."
+    ],
+    "bundle": "/animations/distributed-tracing.js",
+    "poster": "/animations/distributed-tracing.png"
+  },
+  {
+    "slug": "canary",
+    "title": [
+      "Canary ",
+      "Deployment"
+    ],
+    "category": "Delivery",
+    "summary": "Send a new version a sliver of traffic first, watch its error rate, and ramp or roll back before it reaches everyone.",
+    "question": "Why does a big-bang release take down 100% of users at once — and how does a canary cap the blast radius?",
+    "details": [
+      "Run the new version beside the old and route a small slice (1–5%) to it; the other 95% stay on the proven version, so a bad deploy harms a fraction of users instead of all of them.",
+      "Promote on evidence, not hope: compare the canary's golden signals (errors, latency, saturation) against the baseline and ramp 5 → 25 → 50 → 100 only while it stays healthy — automate the gate so a human isn't eyeballing dashboards.",
+      "Rollback must be instant and safe: shifting traffic back is a routing change, not a redeploy — but it only works if the new version is backward-compatible with the database and the messages already in flight.",
+      "A canary needs enough traffic and time to be statistically meaningful — 5% of a low-traffic service may never surface the bug — and watch for session affinity or caches that pin a user across the split."
+    ],
+    "bundle": "/animations/canary.js",
+    "poster": "/animations/canary.png"
+  },
+  {
+    "slug": "backpressure",
+    "title": [
+      "",
+      "Backpressure"
+    ],
+    "category": "Resilience",
+    "summary": "When a consumer can't keep up, push the slowdown upstream instead of letting an unbounded queue swallow memory and work.",
+    "question": "A fast producer outruns a slow consumer — why does the queue between them become a time bomb, and how does backpressure defuse it?",
+    "details": [
+      "An unbounded buffer doesn't absorb overload, it hides it: the queue grows until memory runs out or latency balloons past every timeout, turning a brief mismatch into a total, delayed collapse.",
+      "Backpressure makes the slowdown visible at the source — bound the queue and, when it fills, block the producer, reject with 429/503, or drop by priority, so the system degrades on purpose instead of by surprise.",
+      "It propagates hop by hop: TCP flow control, reactive streams' request(n), and bounded thread pools all carry 'slow down' upstream until it reaches the true source — which may be a user you can legitimately make wait.",
+      "Pick the policy per workload: block when work must not be lost and the producer can wait, shed when fresh data beats complete data (telemetry, live feeds), and always pair a bounded queue with a timeout so a stalled consumer can't pin a producer forever."
+    ],
+    "bundle": "/animations/backpressure.js",
+    "poster": "/animations/backpressure.png"
+  },
+  {
+    "slug": "bulkhead",
+    "title": [
+      "Bulkhead ",
+      "Isolation"
+    ],
+    "category": "Resilience",
+    "summary": "Give each dependency its own pool so one slow dependency can't drain every thread and sink the whole service.",
+    "question": "One slow downstream hangs every request — how do separate pools keep checkout alive while search burns?",
+    "details": [
+      "Named after a ship's watertight compartments: partition your finite resources — thread pools, connection pools, queues — per dependency or tenant, so flooding one compartment can't sink the vessel.",
+      "Without it, one slow dependency is enough: every incoming request blocks a shared thread waiting on it, the pool exhausts, and calls that never even touch the slow dependency start failing too.",
+      "Size each pool to the dependency's real capacity and fail fast when its pool is full — a saturated bulkhead should reject or fall back immediately, which is exactly where a circuit breaker and a timeout belong.",
+      "Isolation has a cost: dedicated pools strand some capacity and add complexity, so bulkhead the things whose failure you can't afford to share — payments, auth, checkout — and let low-stakes features share."
+    ],
+    "bundle": "/animations/bulkhead.js",
+    "poster": "/animations/bulkhead.png"
+  },
+  {
+    "slug": "outbox",
+    "title": [
+      "Outbox ",
+      "Pattern"
+    ],
+    "category": "Data",
+    "summary": "Write the business row and its outgoing event in one transaction, then relay the event — so a crash can't lose it or fake it.",
+    "question": "You commit the order to the database, then publish to Kafka — what happens to the event if the process dies in between?",
+    "details": [
+      "The dual-write problem: a database commit and a message publish are two systems with no shared transaction, so a crash between them either loses the event (committed, never published) or fabricates one (published, then rolled back).",
+      "Fix it with one atomic write: insert the business row and an event row into an OUTBOX table in the same local transaction — either both land or neither does, so the event is durable the instant the business change is.",
+      "A separate relay then reads the outbox and publishes to the broker, marking rows sent — by polling, or by change-data-capture tailing the log (Debezium); it retries until the broker acks, so delivery is at-least-once.",
+      "At-least-once means duplicates are normal — the relay can publish then crash before marking the row sent — so consumers must dedupe on an idempotency key. The mirror image is the inbox: record processed message IDs to drop replays."
+    ],
+    "bundle": "/animations/outbox.js",
+    "poster": "/animations/outbox.png"
+  },
+  {
+    "slug": "dead-letter-queue",
+    "title": [
+      "Dead Letter ",
+      "Queue"
+    ],
+    "category": "Messaging",
+    "summary": "Shunt a message that keeps failing into a side queue so one poison message can't block the whole pipeline forever.",
+    "question": "A message at the head of the queue fails every retry — why does it freeze everything behind it, and where should it go?",
+    "details": [
+      "A poison message — malformed, referencing deleted data, or tripping a bug — fails every delivery; with in-order processing it sits at the head and blocks every healthy message behind it while the consumer retries in a tight, wasteful loop.",
+      "Cap the retries, then redirect: after N failed attempts move the message to a dead-letter queue so the main queue keeps draining; most brokers (SQS, RabbitMQ, a Kafka DLT topic) support this natively via a max-receive count.",
+      "A DLQ is a diagnosis tool, not a graveyard: alert on its depth, keep the original message plus the failure reason and stack trace, and build a path to inspect, fix, and replay messages back onto the main queue.",
+      "Separate transient from permanent failure first — a downstream timeout deserves retry with backoff, a schema violation never will — or you'll either dead-letter recoverable work or hammer a bug forever."
+    ],
+    "bundle": "/animations/dead-letter-queue.js",
+    "poster": "/animations/dead-letter-queue.png"
+  },
+  {
+    "slug": "autoscaling",
+    "title": [
+      "",
+      "Autoscaling"
+    ],
+    "category": "Scaling",
+    "summary": "Add and remove replicas from a real demand signal — queue depth or concurrency, not just CPU — before saturation turns into dropped traffic.",
+    "question": "Traffic triples at noon — why does a fixed fleet fall over, and what signal should decide when to add replicas?",
+    "details": [
+      "A fixed fleet is wrong twice: provisioned for peak it burns money all night, provisioned for average it saturates and drops traffic at peak — autoscaling tracks demand so capacity follows the curve.",
+      "CPU is often the wrong trigger: an I/O-bound or queue-driven service saturates on connections, concurrency, or backlog while CPU still looks idle, so scale on the signal that actually reflects load — queue depth, in-flight requests, p99 latency.",
+      "Scaling isn't instant: a new replica needs schedule + image pull + boot + warm-up, so scale out early and aggressively, scale in slowly, and add a cooldown window or the fleet flaps up and down chasing noise.",
+      "Autoscaling can't fix a downstream bottleneck — more app pods just pile more load onto the one database — and it needs a ceiling and headroom, or a runaway scale-out becomes a self-inflicted cost spike or a thundering herd."
+    ],
+    "bundle": "/animations/autoscaling.js",
+    "poster": "/animations/autoscaling.png"
   }
 ]

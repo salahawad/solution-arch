@@ -9,7 +9,7 @@ export interface ConceptMeta {
   slug: string;
   /** [white part, accent part] for the split-color title */
   title: [string, string];
-  category: 'Scaling' | 'Messaging' | 'Caching' | 'Data' | 'Resilience' | 'Networking' | 'Coordination' | 'Orchestration' | 'Client';
+  category: 'Scaling' | 'Messaging' | 'Caching' | 'Data' | 'Resilience' | 'Networking' | 'Coordination' | 'Orchestration' | 'Client' | 'Observability' | 'Delivery';
   summary: string;
   question: string;
 }
