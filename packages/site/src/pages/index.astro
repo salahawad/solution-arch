@@ -24,6 +24,11 @@ const groups = [
       Short, interactive visual explainers of the systems you design every day —
       each one renders live in your browser. Play, pause, and scrub through the idea.
     </p>
+    <div class="today" id="today" hidden>
+      <span class="today-eyebrow mono">Today's concept</span>
+      <div class="today-slot" id="today-slot"></div>
+    </div>
+    <p class="new-banner" id="new-banner" role="status" aria-live="polite" hidden></p>
   </section>
 
   <section id="library" class="container" style="padding-bottom: 64px">
@@ -31,6 +36,10 @@ const groups = [
       <h2>Concept library</h2>
       <div class="rule"></div>
       <span class="mono" id="result-count" role="status" aria-live="polite" style="color:var(--muted-2);font-size:13px">{concepts.length} concepts</span>
+      <div class="explored" id="explored" hidden aria-live="polite">
+        <span class="explored-label mono"><span id="explored-n">0</span> / {concepts.length} explored</span>
+        <div class="explored-track"><div class="explored-fill" id="explored-fill"></div></div>
+      </div>
     </div>
 
     <div class="lib-toolbar">
@@ -151,4 +160,5 @@ const groups = [
       if (sp.get("q") || sp.get("cat")) apply();
     })();
   </script>
+  <script type="application/json" id="sa-concepts" set:html={JSON.stringify(concepts.map((c) => ({slug: c.slug, added: c.added})))}></script>
 </Base>

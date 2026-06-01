@@ -19,6 +19,7 @@ const search = `${fullTitle} ${concept.summary} ${concept.category}`
   class="card"
   href={`/concepts/${concept.slug}/`}
   aria-label={fullTitle}
+  data-slug={concept.slug}
   data-category={concept.category}
   data-search={search}
 >
