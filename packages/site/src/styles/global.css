@@ -408,3 +408,14 @@ img { display: block; max-width: 100%; }
   font: 500 13px var(--mono); color: var(--teal);
   background: var(--panel); border: 1px solid var(--border-2); border-radius: 999px;
 }
+
+/* ---- Social proof (Redis) ---- */
+.trending { margin-top: 28px; }
+.trending-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; max-width: 720px; margin-top: 10px; }
+.views-badge {
+  position: absolute; bottom: 10px; left: 10px; z-index: 2;
+  padding: 3px 8px; font-size: 11px; color: var(--text);
+  background: rgba(11, 14, 20, .72); border: 1px solid var(--border-2);
+  border-radius: 999px; backdrop-filter: blur(4px);
+}
+.view-count { display: block; margin-top: 12px; color: var(--teal); font-size: 13px; }
