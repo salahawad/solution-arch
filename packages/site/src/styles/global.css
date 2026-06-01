@@ -235,7 +235,9 @@ img { display: block; max-width: 100%; }
 .cat-head.sub .count { color: var(--muted-2); font-size: 12px; font-family: var(--mono); }
 .no-results { color: var(--muted); text-align: center; padding: 56px 0; font-size: 15px; }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+/* min(320px, 100%) keeps a single column from overflowing narrow phones
+   (a bare 320px track is wider than the content area on ~360px devices) */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 24px; }
 .grid > * { min-width: 0; }
 
 .card {
@@ -331,6 +333,28 @@ img { display: block; max-width: 100%; }
 /* ---- footer ---- */
 .site-footer { border-top: 1px solid var(--border); margin-top: 80px; padding: 36px 0; color: var(--muted-2); font-size: 13px; }
 .site-footer .inner { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
+
+/* ---- mobile ---- */
+@media (max-width: 640px) {
+  .container { padding: 0 16px; }
+  .site-header .inner { height: 56px; }
+  .nav-link { font-size: 13px; }
+
+  .hero { padding: 56px 0 36px; }
+  .hero .eyebrow { margin-bottom: 16px; }
+  .hero h1 { margin-bottom: 16px; }
+
+  .cat-head { margin: 36px 0 16px; }
+  .lib-toolbar { margin: 4px 0 28px; }
+  .grid { gap: 18px; }
+
+  .concept { padding: 24px 0 64px; }
+  .back { margin-bottom: 20px; }
+  .concept-grid { gap: 28px; }
+  .more { margin-top: 44px; }
+
+  .site-footer { margin-top: 56px; padding: 28px 0; }
+}
 
 /* honor reduced-motion across the CSS layer (the canvas autoplay is gated separately in JS) */
 @media (prefers-reduced-motion: reduce) {
