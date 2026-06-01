@@ -42,7 +42,7 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
 
     <div class="concept-grid">
       <div class="stage-wrap">
-        <div class="stage" id="stage" data-bundle={concept.bundle}>
+        <div class="stage" id="stage" data-bundle={concept.bundle} data-slug={concept.slug}>
           <img class="poster" src={poster} alt={`${fullTitle} preview`} />
           <div class="overlay" id="overlay" role="button" tabindex="0" aria-label={`Play ${fullTitle} animation`}>
             <div class="btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></div>
@@ -61,6 +61,11 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
           </ul>
         )}
         <span class="hint">Renders live in your browser, not a video — plays in view, click to pause.</span>
+        <button class="share-btn" id="share-btn" type="button" data-title={fullTitle} data-summary={concept.summary}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="share-label">Share</span>
+        </button>
+        <span class="toast" id="toast" role="status" aria-live="polite" hidden></span>
       </div>
     </div>
 
@@ -116,7 +121,10 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
         var settled = false;
         customElements.whenDefined("motion-canvas-player").then(function () {
           settled = true;
-          if (player) stage.classList.add("playing");
+          if (player) {
+            stage.classList.add("playing");
+            document.dispatchEvent(new CustomEvent("sa:concept-played", {detail: {slug: stage.dataset.slug}}));
+          }
         });
         setTimeout(function () { if (!settled && player) pause(); }, 6000);
       }
@@ -184,5 +192,47 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
         else card.remove();                   // drop extras; their lazy <img> never loads
       });
     })();
+  </script>
+
+  <script>
+    import {readProgress, writeProgress} from "../../lib/storage";
+    import {addSeen} from "../../lib/progress";
+
+    // mark this concept "seen" the first time its player actually plays
+    document.addEventListener("sa:concept-played", (e) => {
+      const slug = (e as CustomEvent).detail?.slug;
+      if (!slug) return;
+      const prog = readProgress();
+      const next = addSeen(prog.seen, slug);
+      if (next !== prog.seen) writeProgress({...prog, seen: next});
+    });
+
+    // Share: native sheet where supported, copy-link fallback otherwise
+    const btn = document.getElementById("share-btn") as HTMLButtonElement | null;
+    const toast = document.getElementById("toast");
+    function flash(msg: string) {
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.hidden = false;
+      setTimeout(() => (toast.hidden = true), 2000);
+    }
+    btn?.addEventListener("click", async () => {
+      const url = location.href;
+      const data = {title: btn.dataset.title || document.title, text: btn.dataset.summary || "", url};
+      try {
+        if (navigator.share) {
+          await navigator.share(data);
+          return;
+        }
+      } catch {
+        return; // user cancelled the native sheet
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        flash("Link copied");
+      } catch {
+        flash(url);
+      }
+    });
   </script>
 </Base>
