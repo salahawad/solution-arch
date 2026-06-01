@@ -29,6 +29,10 @@ const groups = [
       <div class="today-slot" id="today-slot"></div>
     </div>
     <p class="new-banner" id="new-banner" role="status" aria-live="polite" hidden></p>
+    <div class="trending" id="trending" hidden>
+      <span class="today-eyebrow mono">Trending this week</span>
+      <div class="trending-slots" id="trending-slots"></div>
+    </div>
   </section>
 
   <section id="library" class="container" style="padding-bottom: 64px">
@@ -218,6 +222,36 @@ const groups = [
     if (pick && source && slot && todayWrap) {
       slot.appendChild(source.cloneNode(true));
       todayWrap.hidden = false;
+    }
+  </script>
+  <script>
+    import {formatCount} from "../lib/views";
+
+    const res = await fetch("/api/stats").catch(() => null);
+    if (res && res.ok) {
+      const {counts, trending} = await res.json();
+
+      // per-card "N explored" badge
+      document.querySelectorAll<HTMLElement>(".card[data-slug]").forEach((card) => {
+        const n = counts[card.dataset.slug!];
+        if (typeof n === "number" && n > 0) {
+          const b = document.createElement("span");
+          b.className = "views-badge mono";
+          b.textContent = `${formatCount(n)} explored`;
+          card.appendChild(b);
+        }
+      });
+
+      // trending strip — clone the matching library cards in rank order
+      const wrap = document.getElementById("trending");
+      const slot = document.getElementById("trending-slots");
+      if (wrap && slot && Array.isArray(trending) && trending.length) {
+        trending.forEach((slug: string) => {
+          const src = document.querySelector<HTMLElement>(`.card[data-slug="${slug}"]`);
+          if (src) slot.appendChild(src.cloneNode(true));
+        });
+        if (slot.children.length) wrap.hidden = false;
+      }
     }
   </script>
 </Base>
