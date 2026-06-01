@@ -63,6 +63,28 @@ const groups = [
   </section>
 
   <script is:inline>
+    // cursor parallax on the hero grid + light beam (depth) — skipped for reduced-motion
+    (function () {
+      var hero = document.querySelector(".hero");
+      if (!hero) return;
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      function move(e) {
+        var r = hero.getBoundingClientRect();
+        var x = (e.clientX - r.left) / r.width - 0.5;
+        var y = (e.clientY - r.top) / r.height - 0.5;
+        hero.style.setProperty("--px", (x * 22).toFixed(1) + "px");
+        hero.style.setProperty("--py", (y * 22).toFixed(1) + "px");
+      }
+      function reset() {
+        hero.style.setProperty("--px", "0px");
+        hero.style.setProperty("--py", "0px");
+      }
+      hero.addEventListener("pointermove", move);
+      hero.addEventListener("pointerleave", reset);
+    })();
+  </script>
+
+  <script is:inline>
     (function () {
       var input = document.getElementById("concept-search");
       var pills = document.getElementById("cat-pills");
