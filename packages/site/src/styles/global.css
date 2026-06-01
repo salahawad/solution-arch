@@ -337,3 +337,23 @@ img { display: block; max-width: 100%; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---- live presence badge ---- */
+.header-right { display: flex; align-items: center; gap: 18px; }
+.presence {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 13px; color: var(--muted);
+  padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--panel); white-space: nowrap;
+}
+.presence-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--teal); box-shadow: 0 0 10px var(--teal);
+  animation: presence-pulse 2s ease-in-out infinite;
+}
+@keyframes presence-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .presence-dot { animation: none; } }
+/* the class sets display, so the hidden attribute needs an explicit override */
+[data-presence][hidden] { display: none; }
+/* keep the 64px header uncluttered on small screens */
+@media (max-width: 560px) { .presence { display: none; } }

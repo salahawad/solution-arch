@@ -1,0 +1,63 @@
+---
+// Site-wide live-presence pill. Renders nothing until the first successful
+// count, and re-hides on any error — so it never shows a broken/zero state.
+---
+<div class="presence" data-presence hidden aria-live="polite">
+  <span class="presence-dot" aria-hidden="true"></span>
+  <span data-presence-text></span>
+</div>
+
+<script>
+  const POLL_MS = 30_000;
+  const root = document.querySelector('[data-presence]') as HTMLElement | null;
+  const textEl = document.querySelector('[data-presence-text]');
+
+  if (root && textEl) {
+    let id = localStorage.getItem('sa_vid');
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem('sa_vid', id);
+    }
+
+    let timer: ReturnType<typeof setInterval> | undefined;
+
+    const beat = async () => {
+      try {
+        const res = await fetch('/api/presence', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ id }),
+        });
+        if (!res.ok) {
+          root.hidden = true;
+          return;
+        }
+        const data = await res.json();
+        if (typeof data.count === 'number') {
+          textEl.textContent = `${data.count} exploring now`;
+          root.hidden = false;
+        } else {
+          root.hidden = true;
+        }
+      } catch {
+        root.hidden = true;
+      }
+    };
+
+    const start = () => {
+      beat();
+      timer = setInterval(beat, POLL_MS);
+    };
+    const stop = () => {
+      clearInterval(timer);
+      timer = undefined;
+    };
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop();
+      else if (!timer) start();
+    });
+
+    if (!document.hidden) start();
+  }
+</script>
