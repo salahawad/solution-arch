@@ -219,30 +219,30 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
         .catch(() => {});
     }
 
-    // On first play: mark the concept seen (persistent — drives the explored bar +
-    // card checkmarks) and count a view once per browser session. sessionStorage
-    // dedup means a new window / incognito re-counts, while a refresh or repeat
-    // autoplay within the same session does not. An in-memory Set backstops the
-    // case where sessionStorage is blocked, so scrolling in/out can't over-count.
-    const countedThisSession = new Set<string>();
-    document.addEventListener("sa:concept-played", (e) => {
-      const s = (e as CustomEvent).detail?.slug;
-      if (!s) return;
-
-      // persistent "seen" state for the habit UI — idempotent, once per device
-      const prog = readProgress();
-      if (!prog.seen.includes(s)) writeProgress({...prog, seen: addSeen(prog.seen, s)});
-
-      // per-session view dedup
-      if (countedThisSession.has(s)) return;
+    // Count a view when the concept page opens, deduped once per browser session:
+    // a new window / incognito re-counts, a refresh within the session does not
+    // (sessionStorage; an in-memory flag backstops blocked storage). Only one slug
+    // per page, so a single guard suffices.
+    let viewCounted = false;
+    function recordView(s: string) {
+      if (viewCounted) return;
+      viewCounted = true;
       try { if (sessionStorage.getItem(`sa.viewed.${s}`)) return; } catch { /* storage blocked */ }
-      countedThisSession.add(s);
       try { sessionStorage.setItem(`sa.viewed.${s}`, "1"); } catch { /* storage blocked */ }
-
       fetch("/api/view", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({slug: s})})
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => { if (d && typeof d.count === "number") showCount(d.count); })
         .catch(() => {});
+    }
+    if (slug) recordView(slug);
+
+    // Mark the concept "seen" on first play — drives the explored bar + card
+    // checkmarks (persistent per device, separate from the per-session view count).
+    document.addEventListener("sa:concept-played", (e) => {
+      const s = (e as CustomEvent).detail?.slug;
+      if (!s) return;
+      const prog = readProgress();
+      if (!prog.seen.includes(s)) writeProgress({...prog, seen: addSeen(prog.seen, s)});
     });
 
     // Share: native sheet where supported, copy-link fallback otherwise
