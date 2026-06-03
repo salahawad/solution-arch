@@ -31,6 +31,7 @@ const groups = [
       <h2>Concept library</h2>
       <div class="rule"></div>
       <span class="mono" id="result-count" role="status" aria-live="polite" style="color:var(--muted-2);font-size:13px">{concepts.length} concepts</span>
+      <span class="mono total-views" id="total-views" role="status" aria-live="polite" hidden></span>
     </div>
 
     <div class="lib-toolbar">
@@ -127,6 +128,27 @@ const groups = [
       if (sp.get("q")) input.value = sp.get("q");
       if (sp.get("cat")) setActivePill(sp.get("cat"));
       if (sp.get("q") || sp.get("cat")) apply();
+    })();
+  </script>
+
+  <script is:inline>
+    // Total pageviews from /api/views (Plausible, read server-side). Rendered in
+    // compact K/M notation so a big number stays a few chars wide on mobile.
+    // Anything missing — endpoint unconfigured (204), network error, zero — and the
+    // element just stays hidden, so the layout never shifts on a fresh deploy.
+    (function () {
+      var el = document.getElementById("total-views");
+      if (!el || !window.fetch) return;
+      var fmt = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
+      fetch("/api/views", { headers: { Accept: "application/json" } })
+        .then(function (r) { return r.ok && r.status !== 204 ? r.json() : null; })
+        .then(function (d) {
+          var n = d && typeof d.views === "number" ? d.views : 0;
+          if (n <= 0) return;
+          el.textContent = fmt.format(n) + " views";
+          el.hidden = false;
+        })
+        .catch(function () { /* leave the counter hidden */ });
     })();
   </script>
 </Base>

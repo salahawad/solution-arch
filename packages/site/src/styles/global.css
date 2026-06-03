@@ -78,6 +78,9 @@ img { display: block; max-width: 100%; }
 .cat-head { display: flex; align-items: baseline; gap: 14px; margin: 48px 0 20px; }
 .cat-head h2 { font-size: 15px; text-transform: uppercase; letter-spacing: 3px; color: var(--muted); font-family: var(--mono); margin: 0; font-weight: 600; }
 .cat-head .rule { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+/* Total views sits beside the concept count; K/M notation keeps it short on mobile. */
+.cat-head .total-views { color: var(--muted-2); font-size: 13px; margin-left: -6px; white-space: nowrap; }
+.cat-head .total-views::before { content: "·"; margin-right: 8px; color: var(--border); }
 
 /* ---- library toolbar: search + category pills ---- */
 .lib-toolbar { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; margin: 4px 0 36px; }

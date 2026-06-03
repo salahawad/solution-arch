@@ -95,6 +95,27 @@ pnpm dev:site     # Astro dev server
 - CI (`.github/workflows/ci.yml`) rebuilds embeds, posters, and the site on a clean checkout,
   and fails if any concept won't compile or the committed manifest drifts from the registry.
 
+## Analytics & total views (optional)
+
+The home page shows a total-views counter next to the concept count, in compact
+K/M notation. It's powered by [Plausible](https://plausible.io) and is fully
+opt-in — with no env vars set, tracking is not emitted and the counter stays
+hidden, so nothing breaks.
+
+To enable, set these Vercel project env vars:
+
+| Variable | Where | Purpose |
+| --- | --- | --- |
+| `PUBLIC_PLAUSIBLE_DOMAIN` | build-time | Site domain registered in Plausible; emits the tracking script. |
+| `PUBLIC_PLAUSIBLE_HOST` | build-time | Plausible host for the script tag (default `https://plausible.io`; set for self-hosted). |
+| `PLAUSIBLE_SITE_ID` | server (`/api/views`) | Same domain, passed to the Stats API. |
+| `PLAUSIBLE_API_KEY` | server (`/api/views`) | Plausible Stats API key — **secret, never shipped to the client**. |
+| `PLAUSIBLE_HOST` | server (`/api/views`) | API host (default `plausible.io`). |
+| `PLAUSIBLE_PERIOD` | server (`/api/views`) | Aggregation window (default `12mo`; use `custom` with `PLAUSIBLE_DATE_RANGE` for all-time). |
+
+The view count is read server-side by the `/api/views` Vercel function and cached
+at the edge for an hour, so the API key never reaches the browser.
+
 ## Stack
 
 Motion Canvas 3.17 · Vite 5 · Astro 5 · pnpm workspaces · Vercel (static).
