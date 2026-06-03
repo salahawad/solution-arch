@@ -1,17 +1,44 @@
 ---
-// Site-wide live-presence pill. Renders nothing until the first successful
+// Site-wide live-presence pill: how many visitors are exploring right now, with
+// the all-time total views beside it. Renders nothing until the first successful
 // count, and re-hides on any error — so it never shows a broken/zero state.
 ---
 <!-- Decorative vanity counter: no aria-live, so it isn't re-announced every poll. -->
 <div class="presence" data-presence hidden>
   <span class="presence-dot" aria-hidden="true"></span>
   <span data-presence-text></span>
+  <span class="presence-views" data-presence-views hidden></span>
 </div>
 
 <script>
+  import { formatCount } from '../lib/views';
+
   const POLL_MS = 30_000;
   const root = document.querySelector('[data-presence]') as HTMLElement | null;
   const textEl = document.querySelector('[data-presence-text]');
+  const viewsEl = document.querySelector('[data-presence-views]') as HTMLElement | null;
+
+  // All-time total views, read once from the same stats endpoint the homepage
+  // uses (per-slug counts, summed here). Compact k/m notation keeps it a few
+  // characters wide so the pill stays tidy on mobile. Independent of presence:
+  // a failure just leaves this segment hidden.
+  if (viewsEl) {
+    fetch('/api/stats')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const counts = data && data.counts;
+        if (!counts) return;
+        let total = 0;
+        for (const slug in counts) total += counts[slug];
+        if (total > 0) {
+          viewsEl.textContent = `${formatCount(total)} views`;
+          viewsEl.hidden = false;
+        }
+      })
+      .catch(() => {
+        /* leave the views segment hidden */
+      });
+  }
 
   if (root && textEl) {
     // localStorage / crypto can throw in strict private modes; degrade silently.

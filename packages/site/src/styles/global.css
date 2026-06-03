@@ -381,6 +381,9 @@ img { display: block; max-width: 100%; }
 }
 @keyframes presence-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 @media (prefers-reduced-motion: reduce) { .presence-dot { animation: none; } }
+/* all-time total views, beside the live count — dimmer, with a hairline divider */
+.presence-views { color: var(--muted-2); }
+.presence-views::before { content: "·"; margin: 0 7px; color: var(--border-2); }
 /* the class sets display, so the hidden attribute needs an explicit override */
 [data-presence][hidden] { display: none; }
 /* On small screens the header can't fit brand + presence + nav. Keep the live
