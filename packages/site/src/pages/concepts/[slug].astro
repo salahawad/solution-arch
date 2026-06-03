@@ -239,7 +239,7 @@ const importmap = JSON.stringify({ imports: { "@motion-canvas/core": "/animation
       countedThisSession.add(s);
       try { sessionStorage.setItem(`sa.viewed.${s}`, "1"); } catch { /* storage blocked */ }
 
-      fetch(`/api/view/${s}`, {method: "POST"})
+      fetch("/api/view", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({slug: s})})
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => { if (d && typeof d.count === "number") showCount(d.count); })
         .catch(() => {});
